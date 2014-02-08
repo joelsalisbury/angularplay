@@ -1,0 +1,565 @@
+/*
+ * HTML5 Boilerplate
+ *
+ * What follows is the result of much research on cross-browser styling.
+ * Credit left inline and big thanks to Nicolas Gallagher, Jonathan Neal,
+ * Kroc Camen, and the H5BP dev community and team.
+ */
+
+/* ==========================================================================
+   Base styles: opinionated defaults
+   ========================================================================== */
+
+html,
+button,
+input,
+select,
+textarea {
+    color: #222;
+}
+
+body {
+    font-size: 1em;
+    line-height: 1.4;
+}
+
+a {
+    color: #00e;
+}
+
+a:visited {
+    color: #551a8b;
+}
+
+a:hover {
+    color: #06e;
+}
+
+/*
+ * Remove the gap between images and the bottom of their containers: h5bp.com/i/440
+ */
+
+img {
+    vertical-align: middle;
+}
+
+/*
+ * Remove default fieldset styles.
+ */
+
+fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+/*
+ * Allow only vertical resizing of textareas.
+ */
+
+textarea {
+    resize: vertical;
+}
+
+/* ==========================================================================
+   Author's custom styles
+   ========================================================================== */
+
+
+body{background:url(../img/bg2.jpg) no-repeat center center fixed;
+background-size:cover;
+-webkit-background-size: cover;
+-moz-background-size: cover;
+-o-background-size: cover;
+color:#fff;
+margin:0 auto;
+width:100%;
+font-family: "Helvetica Neue", -apple-system-font;
+font-weight: 100;
+}
+
+#currentBook{
+	font-weight:200;
+}
+
+#currentLine{
+ color:#fff;
+ font-size:44px;	
+ font-weight:100;
+ text-shadow:0px 0px 2px #333;
+ text-align:center;
+}
+
+.highlight{
+	color: #4e9dd8;
+}
+
+#controls a{
+ font-size:24px;
+
+ background-color:#fff;
+ border:1px solid #e3e3e3;
+
+ margin-right:10px;
+
+ padding:10px 80px!important;
+ text-indent:-99999px;
+color: transparent; 
+}
+
+#controls a.short{
+	background:#eee url(../img/short.png) no-repeat center center;
+	 background-size:30%;
+}
+
+#controls a.long{
+	background:#eee url(../img/long.png) no-repeat center center;
+	 background-size:30%;
+}
+
+.sylspan{
+ padding-top:35px;	
+ position:relative;
+   -o-transition:.5s;
+  -ms-transition:.5s;
+  -moz-transition:.5s;
+  -webkit-transition:.5s;
+  /* ...and now for the proper property */
+  transition:.5s;
+}
+
+.sylspan.red{
+ color:red;	
+}
+
+.sylspan.green{
+ color:green;	
+}
+
+.sylspan .correctanswer{
+ position:absolute;
+ top:15px;
+ width:100%;
+ height:35px;
+ display:none; 
+}
+
+.sylspan .correctanswer.short{
+ background:url(../img/short.png) no-repeat center center;
+ background-size:25px;	
+}
+
+.sylspan .correctanswer.long{
+ background:url(../img/long.png) no-repeat center center;
+ background-size:25px;	
+}
+
+#wrapper{
+ width:100%;
+ position:absolute;
+ height:400px;
+ top:50%;
+ margin-top:-200px;	
+}
+
+.done-true {
+  text-decoration: line-through;
+  color: grey;
+}
+
+
+
+
+
+
+
+
+
+
+/**
+ *
+ * Main container
+ *
+ */
+ #addToHomeScreen {
+ 	z-index:9999;
+ 	-webkit-user-select:none;
+ 	user-select:none;
+ 	-webkit-box-sizing:border-box;
+ 	box-sizing:border-box;
+ 	-webkit-touch-callout:none;
+ 	touch-callout:none;
+ 	width:240px;
+ 	font-size:14px;
+ 	padding:12px 14px;
+ 	text-align:left;
+ 	font-family:helvetica;
+ 	background-image:-webkit-gradient(linear,0 0,0 100%,color-stop(0,#fff),color-stop(0.02,#eee),color-stop(0.98,#ccc),color-stop(1,#a3a3a3));
+ 	border:1px solid #505050;
+ 	-webkit-border-radius:8px;
+ 	-webkit-background-clip:padding-box;
+ 	color:#333;
+ 	text-shadow:0 1px 0 rgba(255,255,255,0.75);
+ 	line-height:130%;
+ 	-webkit-box-shadow:0 0 4px rgba(0,0,0,0.5);
+ }
+ 
+/**
+ *
+ * Main container ios7
+ *
+ */ 
+#addToHomeScreen.addToHomeios7 {
+	background-color:white;
+	border:1px solid #DDD;
+	background-image:none;
+	-webkit-box-shadow:none;
+	font-family:helvetica;
+	font-weight: lighter;
+}
+
+
+/**
+ *
+ * Main container ipad
+ *
+ */ 
+#addToHomeScreen.addToHomeIpad {
+	width:268px;
+	padding:16px;
+}
+
+
+/**
+ *
+ * The 'wide' class is added when the popup contains the touch icon
+ *
+ */
+#addToHomeScreen.addToHomeWide {
+	width:296px;
+}
+
+#addToHomeScreen.addToHomeIpad.addToHomeWide {
+	width:320px;
+	padding:16px;
+}
+
+/**
+ *
+ * The balloon arrow
+ *
+ */
+ #addToHomeScreen .addToHomeArrow {
+ 	position:absolute;
+ 	background-image:-webkit-gradient(linear,0 0,100% 100%,color-stop(0,rgba(204,204,204,0)),color-stop(0.4,rgba(204,204,204,0)),color-stop(0.4,#ccc));
+ 	border-width:0 1px 1px 0;
+ 	border-style:solid;
+ 	border-color:#505050;
+ 	width:16px; height:16px;
+ 	-webkit-transform:rotateZ(45deg);
+ 	bottom:-9px; left:50%;
+ 	margin-left:-8px;
+ 	-webkit-box-shadow:inset -1px -1px 0 #a9a9a9;
+ 	-webkit-border-bottom-right-radius:2px;
+ }
+ 
+ 
+ 
+ /**
+  *
+  * The balloon arrow ios7
+  *
+  */
+#addToHomeScreen.addToHomeios7 .addToHomeArrow {
+	background-color:white;
+	background-image:none;
+	border-color:#DDD;
+	-webkit-box-shadow:none;
+}
+
+
+/**
+ *
+ * The balloon arrow for iPad
+ *
+ */
+#addToHomeScreen.addToHomeIpad .addToHomeArrow {
+	-webkit-transform:rotateZ(-135deg);
+	background-image:-webkit-gradient(linear,0 0,100% 100%,color-stop(0,rgba(238,238,238,0)),color-stop(0.4,rgba(238,238,238,0)),color-stop(0.4,#eee));
+	-webkit-box-shadow:inset -1px -1px 0 #fff;
+	top:-9px; bottom:auto; left:50%;}
+
+
+
+/**
+ *
+ * The balloon arrow for iPad ios7
+ *
+ */
+#addToHomeScreen.addToHomeIpad.addToHomeios7 .addToHomeArrow {
+	background-image:none;
+	background-color:white;
+	-webkit-box-shadow:none;
+}
+
+
+/**
+ *
+ * Close button
+ *
+ */
+#addToHomeScreen .addToHomeClose {
+	-webkit-box-sizing:border-box;
+	position:absolute;
+	right:4px;
+	top:4px;
+	width:18px;
+	height:18px; line-height:14px;
+	text-align:center;
+	text-indent:1px;
+	-webkit-border-radius:9px;
+	background:rgba(0,0,0,0.12);
+	color:#707070;
+	-webkit-box-shadow:0 1px 0 #fff;
+	font-size:16px;
+}
+
+
+/**
+ *
+ * Close button ios7
+ *
+ */
+#addToHomeScreen.addToHomeios7 .addToHomeClose {
+	background:none;
+	color:#707070;
+	-webkit-box-shadow:0 1px 0 #fff;
+}
+
+
+/**
+ *
+ * The '+' icon, displayed only on iOS < 4.2
+ *
+ */
+#addToHomeScreen .addToHomePlus {
+	font-weight:bold;
+	font-size:1.3em;
+}
+
+
+/**
+ *
+ * The 'share' icon, displayed only on iOS >= 4.2
+ *
+ */
+#addToHomeScreen .addToHomeShare {
+	display:inline-block;
+	width:18px;
+	height:15px;
+	background-repeat:no-repeat;
+	background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAeCAQAAADu6HTYAAADPElEQVR4Xq3TX2gcRRzA8e/M7mVv2+TSNpc/TZtrY6jUGqgaSAmEChKLrYK0YH0RFC2CSCkEfCghiKU04J8qNigq6os+iQV98MHWFwVBrQQRWs21lBw5cw3NNb1/udu72RGG5Y77IzXW77D7sAwf5scyYoL6BGXSDKFZwaGpLvIUaeoCkvX1MmsM0Ny6oRSQYOLuIS+YZOpfQdqslpUxcZrzTVAz4qPwW2O3CeIwC/RSzeY6Ow1QhUrkr+YOWfEKDkEP8Rij7CHKJmrFSDHBdwGEE5wiGChPN+PnT8VdRtEIl1d4gRj/1EVe5ZSBKGh8iqQpo/Fo5+3C/gz0MYg4zgwbqday1/Q4B8BGQ45d/Hi54lakCrU5obOcidJpu1+Lg9whjabyaOYLnrIBFFaRD+xe2ybMDWY66GmP/WA9cGfGp0CWhy0wkMN8inepFiH2rV1j0NQSNQbFLRQnS8/8YSDBBpadfv4CYDub2fmeHDNAsL1MBWUel0iA+Xik6eHcyvD3vAMSU1TGuA/YRS+dD7ovCQN43GKRFCU20Kd3V/avDVVyAZ5niTEuLA5/zBGWg9EEEhfJKN200Tat8CmRAQb9+wv7soPlHt2tQorsz1uPbr0HTY4sJwrH47zJZwABBAKLMBoQXepwgTwdHCo+fXMkQ4lrxEmQ5AaXipPqDY9V2vn09tgvTPI71EEGYxM+/uMJLJ4svpgaWGKOi/xKgmqLSUGSUd5f2vIVJ/CgBaTIUsZ7ZBsn0+NzfMOXLFCXQyTcybN6ep5ZZgUOHn7jpfUpsZshdugPGf+E5zjbyHTSRyQ8xfRPPM/s63RHeuknSoT22mjmmnAOIMkUZ6D1xSfPPAfd1WFKM3sO2CMaHx8M1NjnXKHaAGGkOW0C02WeYHUz4qMtx+w5gUDS8NckYe5lHsMYwCZEPyEEmjLDZFmAS7CDviMdxyTkMNVBKEmYLvbiQQBIBBbCQG04bGQvFWz6CfsCQLWCigILFwcfkGYBiOpbYuOizTAyYyDdCtrGaRG1LCkIgMYEFhI0WqQZoSlbGRyHKe4qOx7iv2bVQW9dp4dlM/x6kmwnWQcd/Q3FCqwTEiT5s+6D5v/pb0SSHyg7uhMWAAAAAElFTkSuQmCC);
+	background-size:18px 15px;
+	text-indent:-9999em;
+	overflow:hidden;
+}
+
+#addToHomeScreen .addToHomeShare.addToHomeShareOS7 {
+	width:11px;
+	background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACoAAAA8CAYAAAAQTCjdAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAASCQAAEgkB80sG3AAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAKjSURBVGiB7dpPiFVVHMDxz7m9NCtMyI2bEJEC25WrEkzHUXCRraIwdNE8ZxfYIlcis1ZEbGEzT1QCF4XgH1CyWhUoJKIWNRGEiCNKmkSiYTzfcfGuOokx77x3ZlS8382959zfn+/invvn3RdijHIRBrwkOINCYXEcdjpb7VyiYdBsLScwt5y6IloYdzqXo36Ro0gY9IKWo+5JwmzBt2HQnBw9ehYNazyn5TBee8Dh+Vq+CWu92GufnkTDR6ab7gDeBNHouMM/l9tXTXM0fGBmL726Fg1Dam74EsvKqR8VNowL2Yzj5f7rnnE4DHq2235diYYhhTGfC94up35T0y+6di/ITU0rKVd+sEi0P7xr2pSJOu8zvF+OzqEv7vDH/WFxt7/cshy/ticsN8sXYUht0kXDOlsF9XJ4UaEvNoz9X3zc5bKaZThbyr5jzJ4wlNY7KTgM+ES0vhz+KeiPw36fKC/ucAF9uFBOrTZm26SJCtaV27+xIo7cXdkTEhvOoh+XyxprU1qnim7CQdGK2HAyKRexYVShT3RItDElN+mkjiP2Ym+S3f01hv2EVal5WW6hU0ElmptaqJuBpXg6MbeFH2LDpU6CQ93zWIKnEvs0cayGU3glMfkOo1jQYewZzOuyz7FC95Jwo5OgUFfgeg993hh/eTqCTxOSm/iuk8DY0Ap1b2GhtHXxsfZN4j/X0fOx4auEIknEhqv4OiUn1L13Z/+xWfWVaG4q0dxUormpRHNTieamEs1NJZqbJ1Q0jHvdiJo5S2cVjSNOCHZhn3/SnuYnIvl3yomIIz7MXZMn9hydRCrR3FSiualEc1OJ5qYSzU0lmptKNDePjWgwcPePT7/g+4cp8wCW4GXaryK3tL+mLdD5x62ppllgu7bso8q/2HIbzGWdNmWnSJwAAAAASUVORK5CYII=);
+	background-size:11px 15px;
+}
+
+
+/**
+ *
+ * The touch icon (if available)
+ *
+ */
+#addToHomeScreen .addToHomeTouchIcon {
+	display:block;
+	float:left;
+	-webkit-border-radius:6px;
+	border-radius:6px;
+	-webkit-box-shadow:0 1px 3px rgba(0,0,0,0.5),
+		inset 0 0 2px rgba(255,255,255,0.9);
+	box-shadow:0 1px 3px rgba(0,0,0,0.5),
+		inset 0 0 2px rgba(255,255,255,0.9);
+	background-repeat:no-repeat;
+	width:57px; height:57px;
+	-webkit-background-size:57px 57px;
+	background-size:57px 57px;
+	margin:0 12px 0 0;
+	border:1px solid #333;
+	-webkit-background-clip:padding-box;
+	background-clip:padding-box;
+}
+
+
+/**
+ *
+ * The touch icon iOS7 (if available)
+ *
+ */
+#addToHomeScreen.addToHomeios7 .addToHomeTouchIcon {
+	-webkit-box-shadow:none;
+	box-shadow:none;	
+	border:1px solid #DDD;
+}
+
+
+/**
+ *
+ *
+ * Semibold font for ios7
+ */
+
+#addToHomeScreen.addToHomeios7 strong {
+	font-family: helvetica;
+	font-weight: 400;
+}
+
+/**
+ *
+ *
+ * Semibold font for ios7
+ */
+
+strong {
+	font-family: helvetica;
+	font-weight: 600;
+}
+
+
+/* ==========================================================================
+   Helper classes
+   ========================================================================== */
+
+/* Prevent callout */
+
+.nocallout {
+    -webkit-touch-callout: none;
+}
+
+.pressed {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* A hack for HTML5 contenteditable attribute on mobile */
+
+textarea[contenteditable] {
+    -webkit-appearance: none;
+}
+
+/* A workaround for S60 3.x and 5.0 devices which do not animated gif images if
+   they have been set as display: none */
+
+.gifhidden {
+    position: absolute;
+    left: -100%;
+}
+
+/*
+ * Image replacement
+ */
+
+.ir {
+    background-color: transparent;
+    background-repeat: no-repeat;
+    border: 0;
+    direction: ltr;
+    display: block;
+    overflow: hidden;
+    text-align: left;
+    text-indent: -999em;
+}
+
+.ir br {
+    display: none;
+}
+
+/*
+ * Hide from both screenreaders and browsers: h5bp.com/u
+ */
+
+.hidden {
+    display: none !important;
+    visibility: hidden;
+}
+
+/*
+ * Hide only visually, but have it available for screenreaders: h5bp.com/v
+ */
+
+.visuallyhidden {
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+}
+
+/*
+ * Extends the .visuallyhidden class to allow the element to be focusable
+ * when navigated to via the keyboard: h5bp.com/p
+ */
+
+.visuallyhidden.focusable:active,
+.visuallyhidden.focusable:focus {
+    clip: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    position: static;
+    width: auto;
+}
+
+/*
+ * Hide visually and from screenreaders, but maintain layout
+ */
+
+.invisible {
+    visibility: hidden;
+}
+
+/**
+ * Clearfix helper
+ * Used to contain floats: h5bp.com/q
+ */
+
+.clearfix:before,
+.clearfix:after {
+    content: "";
+    display: table;
+}
+
+.clearfix:after {
+    clear: both;
+}
+
+/*
+ * For IE 6/7 only
+ * Include this rule to trigger hasLayout and contain floats.
+ */
+
+.clearfix {
+    *zoom: 1;
+}
+
+/* ==========================================================================
+   EXAMPLE Media Queries for Responsive Design.
+   Theses examples override the primary ('mobile first') styles.
+   Modify as content requires.
+   ========================================================================== */
+
+@media only screen and (min-width: 800px) {
+    /* Style adjustments for viewports that meet the condition */
+}
+
+@media only screen and (-webkit-min-device-pixel-ratio: 1.5),
+       only screen and (min-resolution: 144dpi) {
+    /* Style adjustments for viewports that meet the condition */
+}
