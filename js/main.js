@@ -2,6 +2,7 @@ var scansionApp = angular.module('scansionApp', []);
  
 scansionApp.controller('bookCntrl', function ($scope) {
   $scope.currentLine = 0;
+  $scope.currentSyllableNum = 0;
   $scope.currentLineText = "";
   $scope.currentSyllable = "";
   $scope.book = {
@@ -52,7 +53,22 @@ scansionApp.controller('bookCntrl', function ($scope) {
                     }
                 ]
             }
+
+    $scope.init = function(){
+        $scope.currentLineText = $scope.book.lines[$scope.currentLine].string;
+        $scope.getSyllableInCurrentLine($scope.currentSyllableNum);
+    }
+
     $scope.getSyllableInCurrentLine = function(syllable){
          $scope.currentSyllable = $scope.book.lines[$scope.currentLine].syllables[syllable];
+    }
+
+    $scope.evaluateResponse = function(response){
+        var correctResponse = $scope.currentSyllable.quantity;
+
+        $scope.answerIsCorrect = (correctResponse === response);
+
+        $scope.currentSyllableNum++;
+        $scope.getSyllableInCurrentLine($scope.currentSyllableNum);
     }
 });

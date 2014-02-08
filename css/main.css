@@ -82,7 +82,7 @@ font-weight: 100;
 	font-weight:200;
 }
 
-#currentLine{
+#currentLine,#currentSyllable{
  color:#fff;
  font-size:44px;	
  font-weight:100;
@@ -90,8 +90,16 @@ font-weight: 100;
  text-align:center;
 }
 
+#currentSyllable{
+	font-size:24px;
+}
+
 .highlight{
 	color: #4e9dd8;
+}
+
+#controls{
+	text-align: center;
 }
 
 #controls a{
@@ -104,7 +112,7 @@ font-weight: 100;
 
  padding:10px 80px!important;
  text-indent:-99999px;
-color: transparent; 
+ color: transparent; 
 }
 
 #controls a.short{

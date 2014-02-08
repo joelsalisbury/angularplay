@@ -38,18 +38,26 @@
         <link rel="stylesheet" href="css/normalize.css?v2">
         <link rel="stylesheet" href="css/main.css?v7">
     </head>
-    <body ng-controller="bookCntrl">
+    <body ng-controller="bookCntrl" ng-init="init()">
             <h1 id="currentBook">{{book.title}}</h1>
-            <h4 id="currentSyllable">{{currentSyllable.text}}</h4>
+            <h4 id="currentLine">{{currentLineText}}</h4>
+            <h4 id="currentSyllable">{{currentSyllable.text}} ({{currentSyllable.quantity}})</h4>
 
-            <button ng-click="getSyllableInCurrentLine(3)">Get Syllable 3</button>
-            <ul id="lines">
+            <div id="controls">
+                <h2>{{answerIsCorrect}}</h2>
+                <a href="#" class="short" ng-click="evaluateResponse('u')">short</a>
+                <a href="#" class="long" ng-click="evaluateResponse('-')">long</a>
+            </div>
+            
+            <!--<ul id="lines">
                 <li ng-repeat= "line in book.lines">{{line.string}}
                     <ul>
                         <li ng-repeat="syllable in line.syllables">{{syllable.text}} ({{syllable.quantity}})</li>
                     </ul>
                 </li>
-            </ul>
+            </ul>-->
+
+
 
         <script src="js/helper.js"></script>
         <script src="js/main.js?v6"></script>
