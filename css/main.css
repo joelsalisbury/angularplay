@@ -115,6 +115,10 @@ font-weight: 100;
  color: transparent; 
 }
 
+#currentBook{
+	text-align: center;
+}
+
 #controls a.short{
 	background:#eee url(../img/short.png) no-repeat center center;
 	 background-size:30%;
