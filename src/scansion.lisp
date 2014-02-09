@@ -5,7 +5,7 @@
 
 (setf hunchentoot:*dispatch-table*
       (list
-       (hunchentoot:create-regex-dispatcher "^/line/([0-9]*)/([0-9]*)?" 'line-controller)))
+       (hunchentoot:create-regex-dispatcher "^/lines/([0-9]*)/([0-9]*)$" 'line-controller)))
 
 (defun line-controller ()
   (let ((line-id (get-nth-integer-from-uri 0))
