@@ -1,0 +1,3 @@
+[submodule "dep/dpc-cl"]
+	path = dep/dpc-cl
+	url = https://github.com/dchanko/dpc-cl.git
