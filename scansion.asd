@@ -14,5 +14,6 @@
   :components ((:file "package")
 	       (:module :src
 			:serial t      
-			:components ((:file "scansion")))))
+			:components ((:file "utils")
+				     (:file "scansion")))))
 

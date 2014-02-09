@@ -1,4 +1,4 @@
 ;;;; package.lisp
 
 (defpackage #:scansion
-  (:use #:cl #:hunchentoot #:dpc-cl #:web))
+  (:use #:cl #:hunchentoot #:postmodern #:dpc-cl #:web))
