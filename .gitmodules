@@ -1,3 +1,9 @@
 [submodule "dep/dpc-cl"]
 	path = dep/dpc-cl
 	url = https://github.com/dchanko/dpc-cl.git
+[submodule "dep/web"]
+	path = dep/web
+	url = https://github.com/dchanko/web.git
+[submodule "dep/testing"]
+	path = dep/testing
+	url = https://github.com/dchanko/testing.git
