@@ -1,6 +1,6 @@
 (push #p"./dep/dpc-cl/" asdf:*central-registry*)
 (push #p"./dep/web/" asdf:*central-registry*)
-(push #p"./dep/testing/" asdf:*central-registry*)
+;(push #p"./dep/testing/" asdf:*central-registry*)
 
 (asdf:defsystem #:scansion
   :serial t
@@ -9,8 +9,8 @@
 	       #:cl-who
 	       #:postmodern
 	       #:dpc-cl
-	       #:web
-	       #:testing)
+	       #:web)
+	       ;#:testing)
   :components ((:file "package")
 	       (:module :src
 			:serial t      
