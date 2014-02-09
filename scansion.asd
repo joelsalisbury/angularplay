@@ -1,6 +1,6 @@
-(push (merge-pathnames "dep/dpc-cl/" *build-dir*) asdf:*central-registry*)
-(push (merge-pathnames "dep/web/" *build-dir*) asdf:*central-registry*)
-(push (merge-pathnames "dep/testing/" *build-dir*) asdf:*central-registry*)
+(push #p"./dep/dpc-cl/" asdf:*central-registry*)
+(push #p"./dep/web/" asdf:*central-registry*)
+(push #p"./dep/testing/" asdf:*central-registry*))
 
 (asdf:defsystem #:scansion
   :serial t
