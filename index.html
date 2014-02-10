@@ -40,16 +40,15 @@
     </head>
     <body ng-controller="bookCntrl" ng-init="init()">
             <h1 id="currentBook">{{book.title}}</h1>
-            <h4 id="currentLine">{{currentLineText}}</h4>
-            <h4 id="currentSyllable">{{currentSyllable.text}} ({{currentSyllable.quantity}})</h4>
+            <h4 id="currentLine"><span id="syl{{syllable.id}}" class="syl" ng-repeat= "syllable in renderedSyllables">{{syllable.text}}</span></h4>
 
             <div id="controls">
-                <h2>{{answerIsCorrect}}</h2>
+                <h2></h2>
                 <a href="#" class="short" ng-click="evaluateResponse('u')">short</a>
                 <a href="#" class="long" ng-click="evaluateResponse('-')">long</a>
             </div>
             
-            <!--<ul id="lines">
+           <!-- <ul id="lines">
                 <li ng-repeat= "line in book.lines">{{line.string}}
                     <ul>
                         <li ng-repeat="syllable in line.syllables">{{syllable.text}} ({{syllable.quantity}})</li>
@@ -58,7 +57,7 @@
             </ul>-->
 
 
-
+        <script src="js/vendor/zepto.min.js"></script>
         <script src="js/helper.js"></script>
         <script src="js/main.js?v6"></script>
     </body>
