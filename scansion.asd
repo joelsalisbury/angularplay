@@ -15,5 +15,6 @@
 	       (:module :src
 			:serial t      
 			:components ((:file "utils")
+				     (:file "model")
 				     (:file "scansion")))))
 

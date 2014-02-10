@@ -13,3 +13,7 @@
 ;;; Redefine / extend heroku-toplevel here if necessary.
 
 (print ">>> Done building system")
+
+(print ">>> Initializing...")
+(scansion:refresh-db)
+(print ">>> Application ready...")
