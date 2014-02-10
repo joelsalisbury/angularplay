@@ -1,7 +1,5 @@
 (in-package :scansion)
 
-(setf web:*app-name* "SCANSION")
-(setf web:*local-database-url* "SCANSION_DB")
 
 (defun get-nth-integer-from-uri (n)
   (nth n (cl-ppcre:all-matches-as-strings "[0-9]+" (hunchentoot:request-uri hunchentoot::*request*))))
@@ -38,10 +36,9 @@
   (syllable-create :line-id line-one-id :position 15 :start 43 :char-cnt 3 :length 2 :text "ris"))
 
 
-
 (defun line-controller ()
-  (let* ((line-id (get-nth-integer-from-uri 0))
-	 (count (get-nth-integer-from-uri 1))
+  (let* ((line-id (parse-integer (get-nth-integer-from-uri 0)))
+	 (count (parse-integer (get-nth-integer-from-uri 1)))
 	 (lines (line-select (:and (:>= 'numbr line-id) (:< 'numbr (+ line-id count)))))
 	 (line-ids (loop for line in lines collect (line-id line)))
 	 (syllables (syllable-select (:in 'line-id (:set line-ids)))))
