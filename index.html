@@ -40,11 +40,11 @@
     </head>
     <body ng-controller="bookCntrl" ng-init="init()">
             <h1 id="currentBook">{{book.title}}</h1>
-            <h4 id="currentLine"><span id="syl{{syllable.id}}" class="syl" ng-repeat= "syllable in renderedSyllables">{{syllable.text}}</span></h4>
+            <h4 id="currentLine"><span id="syl{{syllable.id}}" class="syl {{syllable.highlight}} {{syllable.answer}}" ng-repeat= "syllable in renderedSyllables">{{syllable.text}}</span></h4>
 
             <div id="controls">
                 <h2></h2>
-                <a href="#" class="short" ng-click="evaluateResponse('u')">short</a>
+                <a href="#" class="short" ng-click="highlightNextSyl()">short</a>
                 <a href="#" class="long" ng-click="evaluateResponse('-')">long</a>
             </div>
             
