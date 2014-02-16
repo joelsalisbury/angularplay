@@ -9,6 +9,12 @@
 
 (defvar line-one)
 (defvar line-one-id)
+(defvar *build-dir*)
+
+(defun get-data-file-path ()
+  (if (local-environment-p)
+      #p"./data/aeneid.csv"
+      (merge-pathnames "data/aeneid.csv" *build-dir*)))
 
 (defun refresh-db ()
   ;; Get rid of the old data
@@ -16,7 +22,7 @@
     (execute (:delete-from 'syllable))
     (execute (:delete-from 'line)))
   
-  (with-open-file (in #p"./data/aeneid.csv" :direction :input)
+  (with-open-file (in (get-data-file-path) :direction :input)
     (loop for text-line = (read-line in nil)
        while text-line do
 	 (let* ((junk-1 (read-line in nil))
@@ -29,30 +35,30 @@
 			 (pre-process-length-line length-line))))))
 
 (defun process-line (text syllables lengths)
-  (print text)
-  (print syllables)
-  (print lengths)
-  (print (coerce (cdr text) 'list))
-  (process-syllables 1 (coerce (cadr text) 'list) syllables lengths 0 0))
+;  (print syllables)
+;  (print lengths)
+;  (print (coerce (cdr text) 'list))
+  (let ((line (line-create :text (cadr text) :numbr (car text))))
+    (process-syllables (line-id line) (coerce (cadr text) 'list) syllables lengths 0 0)))
 
 (defun process-syllables (line-id text syllables lengths pos index)
   (let ((sylb (coerce (car syllables) 'list)))
     (multiple-value-bind (start len) (get-syllable-range text sylb index)
-      ;(syllable-create :line-id line-id
-		       ;:position pos
-		       ;:start (+ index start)
-		       ;:char-cnt len
-		       ;:length (car lengths)
-		       ;:text (car syllables))
-      (print (format nil "Line: ~a; Pos: ~a; Range: ~a for ~A; Text: ~a (~a)"
-		     line-id pos start len (car syllables) (car lengths)))
+      (syllable-create :line-id line-id
+		       :position pos
+		       :start (+ index start)
+		       :char-cnt len
+		       :length (car lengths)
+		       :text (car syllables))
+;      (print (format nil "Pos: ~a; Range: ~a for ~A; Text: ~a (~a)"
+;		     pos start len (car syllables) (car lengths)))
 
       (when (cdr syllables)
-	(print (format nil "Remainder: ~a; Syllables: ~a; Lengths: ~a; Pos: ~a; Index: ~a" (nthcdr (+ (- start index) len) text)
-			   (cdr syllables) 
-			   (cdr lengths)
-			   (1+ pos)
-			   (+ start len)))
+;	(print (format nil "Remainder: ~a; Syllables: ~a; Lengths: ~a; Pos: ~a; Index: ~a" (nthcdr (+ (- start index) len) text)
+;			   (cdr syllables) 
+;			   (cdr lengths)
+;			   (1+ pos)
+;			   (+ start len)))
 	(process-syllables line-id
 			   (nthcdr (+ (- start index) len) text)
 			   (cdr syllables) 
@@ -83,7 +89,6 @@
 	(if (equal #\- (car sylb))
 	    (determine-syllable-length text (cdr sylb) len)
 	    (error 'bad-syllable)))))
-	
 
 (defun text-sylb-char-match (text sylb)
   "Letters match if they are equal or the text is a space and the sylb is a -."
@@ -97,7 +102,10 @@
       ((equal (char-upcase text-char) (char-upcase sylb-char))
        (values t 1 1))
       ((or (and (equal #\Space text-char) (equal #\- sylb-char))
-	   (and (equal #\, text-char) (equal #\- sylb-char)))
+;	   (and (equal #\, text-char) (equal #\- sylb-char)))
+	   (and (or (not (text-char-p text-char))
+		    (equal #\- text-char))
+		(equal #\- sylb-char)))
        (values t
 	       (multiple-value-bind (_ num) (eat-space text)
 		 (declare (ignore _)) num)
@@ -106,9 +114,11 @@
 (defun eat-space (text)
   "Return removing non-alpha-numeric chars at beginning and # chars removed."
   (do ((i 0 (1+ i)))
-      ((cl-ppcre:scan "[A-Za-z0-9]" (string (nth i text)))
+      ((text-char-p (nth i text))
        (values (nthcdr i text) i))))
-  
+
+(defun text-char-p (char)
+  (cl-ppcre:scan "[A-Za-z0-9]" (string char)))
 
 (defun pre-process-text-line (line)
   (let* ((parts (split-string line #\#))
@@ -130,29 +140,8 @@
 	   ((equal length "-") 1)
 	   ((or (equal length "x")
 		(equal length "X")) 2)))))
-	
 
-#|
-    (let* ((text-line (read-line stream)
-  (setf line-one (line-create :text "arma virum que cano, Troiae qui primus ab oris" :numbr 1))
-  (setf line-one-id (line-id line-one))
 
-  (syllable-create :line-id line-one-id :position 1 :start 0 :char-cnt 2 :length 1 :text "ar")
-  (syllable-create :line-id line-one-id :position 2 :start 2 :char-cnt 2 :length 0 :text "ma")
-  (syllable-create :line-id line-one-id :position 3 :start 5 :char-cnt 2 :length 0 :text "vi")
-  (syllable-create :line-id line-one-id :position 4 :start 7 :char-cnt 3 :length 1 :text "rum")
-  (syllable-create :line-id line-one-id :position 5 :start 11 :char-cnt 3 :length 0 :text "que")
-  (syllable-create :line-id line-one-id :position 6 :start 15 :char-cnt 2 :length 0 :text "ca")
-  (syllable-create :line-id line-one-id :position 7 :start 17 :char-cnt 2 :length 1 :text "no")
-  (syllable-create :line-id line-one-id :position 8 :start 21 :char-cnt 3 :length 1 :text "Tro")
-  (syllable-create :line-id line-one-id :position 9 :start 24 :char-cnt 3 :length 1 :text "iae")
-  (syllable-create :line-id line-one-id :position 10 :start 28 :char-cnt 3 :length 1 :text "qui")
-  (syllable-create :line-id line-one-id :position 11 :start 32 :char-cnt 3 :length 1 :text "pri")
-  (syllable-create :line-id line-one-id :position 12 :start 35 :char-cnt 3 :length 0 :text "mus")
-  (syllable-create :line-id line-one-id :position 13 :start 39 :char-cnt 2 :length 0 :text "ab")
-  (syllable-create :line-id line-one-id :position 14 :start 42 :char-cnt 1 :length 1 :text "o")
-  (syllable-create :line-id line-one-id :position 15 :start 43 :char-cnt 3 :length 2 :text "ris"))
-|#
 
 (defun line-controller ()
   (let* ((line-id (parse-integer (get-nth-integer-from-uri 0)))
@@ -169,7 +158,9 @@
 			"id" ,(line-numbr line)
 			"string" ,(line-text line)
 			"syllables" (:array
-				     ,@(loop for sylb in syllables collect
+				     ,@(loop for sylb in (remove-if-not (lambda (x)
+								      (equal (line-id line)
+									     (syllable-line-id x))) syllables) collect
 					   `(:object
 					     "id" ,(syllable-position sylb)
 					     "text" ,(syllable-text sylb)
