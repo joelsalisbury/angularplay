@@ -20,7 +20,7 @@ scansionApp.controller('bookCntrl', function ($scope) {
     $scope.doRenderedSyllables = function(){
         $scope.currentLineText = $scope.book.lines[$scope.currentLine].string;
         $scope.currentLineSyls = $scope.book.lines[$scope.currentLine].syllables;
-
+        $scope.renderedSyllables = [];
         var rendsyls = []
         var fullLine = $scope.book.lines[$scope.currentLine].string;
 
