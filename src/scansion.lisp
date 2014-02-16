@@ -144,7 +144,7 @@
 	 (lines (line-select (:and (:>= 'numbr line-id) (:< 'numbr (+ line-id count)))
 			     'numbr))
 	 (line-ids (loop for line in lines collect (line-id line)))
-	 (syllables (syllable-select (:in 'line-id (:set line-ids)))))
+	 (syllables (syllable-select (:in 'line-id (:set line-ids)) 'line-id 'position)))
     (json:with-explicit-encoder
       (json:encode-json-to-string
        `(:object
