@@ -29,9 +29,9 @@
 	  (let ((,bind (funcall #',(symb- ',name 'get) ,id)))
 	    ,@body)))
      
-     (defmacro ,(symb- name 'select) (sql-test &optional sort)
+     (defmacro ,(symb- name 'select) (sql-test &rest sort)
        `(with-connection (db-params)
-	  (select-dao ',',name ,sql-test ,sort)))
+	  (select-dao ',',name ,sql-test ,@sort)))
 
      (defun ,(symb- name 'update) (,name)
        (with-connection (db-params)
