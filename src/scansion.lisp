@@ -9,20 +9,15 @@
 
 (defvar line-one)
 (defvar line-one-id)
-(defvar *build-dir*)
+(defvar local-file #p"./data/aeneid.csv")
 
-(defun get-data-file-path ()
-  (if (local-environment-p)
-      #p"./data/aeneid.csv"
-      (merge-pathnames "data/aeneid.csv" *build-dir*)))
-
-(defun refresh-db ()
+(defun refresh-db (file)
   ;; Get rid of the old data
   (with-connection (db-params)
     (execute (:delete-from 'syllable))
     (execute (:delete-from 'line)))
   
-  (with-open-file (in (get-data-file-path) :direction :input)
+  (with-open-file (in file :direction :input)
     (loop for text-line = (read-line in nil)
        while text-line do
 	 (let* ((junk-1 (read-line in nil))
