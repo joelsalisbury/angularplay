@@ -41,7 +41,7 @@
     (multiple-value-bind (start len) (get-syllable-range text sylb index)
       (syllable-create :line-id line-id
 		       :position pos
-		       :start (+ index start)
+		       :start start
 		       :char-cnt len
 		       :length (car lengths)
 		       :text (car syllables))
