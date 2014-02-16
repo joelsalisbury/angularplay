@@ -94,7 +94,7 @@ font-weight: 100;
 	font-size:24px;
 }
 
-.highlight-on{
+.highlight-blue{
 	color: #4e9dd8;
 }
 
@@ -113,6 +113,7 @@ font-weight: 100;
  padding:10px 80px!important;
  text-indent:-99999px;
  color: transparent; 
+ cursor:pointer;
 }
 
 #currentBook{
@@ -141,11 +142,11 @@ font-weight: 100;
   transition:.5s;
 }
 
-.sylspan.red{
+.highlight-red{
  color:red;	
 }
 
-.sylspan.green{
+.highlight-green{
  color:green;	
 }
 
