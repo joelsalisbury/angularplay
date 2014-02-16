@@ -94,7 +94,7 @@ font-weight: 100;
 	font-size:24px;
 }
 
-.highlight{
+.highlight-on{
 	color: #4e9dd8;
 }
 
@@ -130,7 +130,7 @@ font-weight: 100;
 	 background-size:30%;
 }
 
-.sylspan{
+.syl{
  padding-top:35px;	
  position:relative;
    -o-transition:.5s;
