@@ -141,7 +141,8 @@
 (defun line-controller ()
   (let* ((line-id (parse-integer (get-nth-integer-from-uri 0)))
 	 (count (parse-integer (get-nth-integer-from-uri 1)))
-	 (lines (line-select (:and (:>= 'numbr line-id) (:< 'numbr (+ line-id count)))))
+	 (lines (line-select (:and (:>= 'numbr line-id) (:< 'numbr (+ line-id count)))
+			     'numbr))
 	 (line-ids (loop for line in lines collect (line-id line)))
 	 (syllables (syllable-select (:in 'line-id (:set line-ids)))))
     (json:with-explicit-encoder
