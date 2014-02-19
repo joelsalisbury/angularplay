@@ -16,5 +16,11 @@
 			:serial t      
 			:components ((:file "utils")
 				     (:file "model")
-				     (:file "scansion")))))
+				     (:file "parsing")
+				     (:file "scansion")))
+	       (:module :test
+			:serial t      
+			:components ((:file "scansion-tests")))))
+
+
 
