@@ -4,7 +4,21 @@
 
 ; process-line
 
-; process-syllables
+(defvar *syllables* ())
+(nst:def-test-group process-syllables-tests ()
+  (nst:def-criterion (:process-syllables (syllables) (line-id text sylbls lengths pos index))
+    (setf *syllables* ())
+    (with-replaced-function (make-dao (name &rest rest)
+				      (declare (ignore name))
+				      (push rest *syllables*))
+      (process-syllables line-id text sylbls lengths pos index))
+    (testing:equal-report syllables (nreverse *syllables*)))
+  (nst:def-test creates-syllables (:process-syllables
+		       ((:LINE-ID 1 :POSITION 0 :START 0
+				 :CHAR-CNT 2 :LENGTH 1 :TEXT "my")
+			(:LINE-ID 1 :POSITION 1 :START 3
+				 :CHAR-CNT 4 :LENGTH 2 :TEXT "text")))
+    1 '(#\m #\y #\Space #\t #\e #\x #\t) '("my" "text") '(1 2) 0 0))
 
 (nst:def-test-group get-syllable-range-tests ()
   (nst:def-test simple-range (:values (:equal 0) (:equal 2))
