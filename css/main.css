@@ -78,16 +78,13 @@ font-family: "Helvetica Neue", -apple-system-font;
 font-weight: 100;
 }
 
-#currentBook{
-	font-weight:200;
-}
-
 #currentLine,#currentSyllable{
  color:#fff;
  font-size:44px;	
  font-weight:100;
  text-shadow:0px 0px 2px #333;
  text-align:center;
+ margin-top:200px;
 }
 
 #currentSyllable{
@@ -180,6 +177,41 @@ font-weight: 100;
   text-decoration: line-through;
   color: grey;
 }
+
+#currentScore{
+	position:absolute;
+	top:0px;
+	left:30%;
+}
+
+#currentScore h1, #currentScore h2, #currentScore h3{
+	font-family: "Helvetica Neue", -apple-system-font;
+	font-weight: 100;
+	transition: 1s;
+	-webkit-transition:1s;
+}
+
+.show-setup {
+  -webkit-transition: 1s linear all; /* Safari/Chrome */
+  -moz-transition: 1s linear all; /* Firefox */
+  -ms-transition: 1s linear all; /* IE10 */
+  -o-transition: 1s linear all; /* Opera */
+  transition: 1s linear all; /* Future Browsers */
+ 
+  /* The animation preparation code */
+  opacity: 0;
+}
+ 
+/*
+ Keep in mind that you want to combine both CSS
+ classes together to avoid any CSS-specificity
+ conflicts
+*/
+.show-setup.show-start {
+  /* The animation code itself */
+  opacity: 1;
+}
+
 
 
 

@@ -4,6 +4,11 @@ scansionApp.controller('bookCntrl', function ($scope) {
   $scope.currentLine = 0;
   $scope.currentLineSyls = new Array();
   $scope.renderedSyllables = new Array();
+  $scope.multiplier = 1;
+  $scope.incrementer = 300;
+  $scope.activeStreak = 0;
+
+  $scope.currentScore = 0;
 
   $scope.currentSyl = 0;
 
@@ -68,11 +73,28 @@ scansionApp.controller('bookCntrl', function ($scope) {
         var correctResponse = $scope.currentLineSyls[$scope.currentSyl].quantity;
         var currentSylObj = $scope.renderedSyllables[$scope.currentSyl];
         if (correctResponse == response){
+            isCorrect = true;
             currentSylObj.highlight = "highlight-green";
-        }
-        else
+            $scope.activeStreak++;
+            $scope.evaluateStreak();
+            $scope.currentScore += $scope.multiplier * $scope.incrementer;
+       }
+        else{
             currentSylObj.highlight = "highlight-red";
+            $scope.activeStreak = 0;
+        }
 
         $scope.highlightNextSyl();
+    }
+
+    $scope.evaluateStreak = function(){
+        switch ($scope.activeStreak){
+            case 3:
+                $scope.multiplier = 2;
+            break;
+
+            default:
+            break;
+        }
     }
 });
