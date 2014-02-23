@@ -16,6 +16,6 @@
 
 (print ">>> Initializing...")
 
-(scansion:refresh-db (merge-pathnames "data/aeneid.csv" *build-dir*))
+;(scansion:refresh-db (merge-pathnames "data/aeneid.csv" *build-dir*))
 
 (print ">>> Application ready...")
