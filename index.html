@@ -39,7 +39,15 @@
         <link rel="stylesheet" href="css/main.css?v7">
     </head>
     <body ng-controller="bookCntrl" ng-init="init()">
+
+            <div id= "currentScore">
+                <h1>{{currentScore}}</h1>
+                <h2>{{multiplier}}X</h2>
+                <h3>Streak:{{activeStreak}}</h3>
+            </div>
+
             <h4 id="currentLine"><span id="syl{{syllable.id}}" class="syl {{syllable.highlight}} {{syllable.answer}}" ng-repeat= "syllable in renderedSyllables">{{syllable.text}}</span></h4>
+
 
             <div id="controls">
                 <h2></h2>
