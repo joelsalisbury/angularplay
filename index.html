@@ -38,23 +38,29 @@
         <link rel="stylesheet" href="css/normalize.css?v2">
         <link rel="stylesheet" href="css/main.css?v7">
     </head>
-    <body ng-controller="bookCntrl" ng-init="init()">
-
-            <div id= "currentScore">
-                <h1>{{currentScore}}</h1>
-                <h2>{{multiplier}}X</h2>
-                <h3>Streak:{{activeStreak}}</h3>
-            </div>
-
-            <h4 id="currentLine"><span id="syl{{syllable.id}}" class="syl {{syllable.highlight}} {{syllable.answer}}" ng-repeat= "syllable in renderedSyllables">{{syllable.text}}</span></h4>
+    <body>
 
 
-            <div id="controls">
-                <h2></h2>
-                <a class="short" ng-click="evaluateResponse('u')">short</a>
-                <a class="long" ng-click="evaluateResponse('-')">long</a>
-            </div>
-            
+        <div ng-controller="lineCntrl" ng-init="init()">
+
+                <h1 id="currentBook">{{book.title}}</h1>
+                <h2 id="currentLineNum">Line number: {{currentLine+1}}</h2>
+                <h4 id="currentLine"><span id="syl{{syllable.id}}" class="syl {{syllable.highlight}} {{syllable.answer}}" ng-repeat= "syllable in renderedSyllables">{{syllable.text}}</span></h4>
+
+
+                <div id="controls">
+                    <h2></h2>
+                    <a class="short" ng-click="evaluateResponse('u')">short</a>
+                    <a class="long" ng-click="evaluateResponse('-')">long</a>
+                </div>
+
+
+
+                <div id= "currentScore">
+                    <h1>{{currentScore}} ({{multiplier}}X)</h1>
+                    <h3>Streak: {{activeStreak}}</h3>
+                </div>                
+        </div>
         <script src="js/vendor/zepto.min.js"></script>
         <script src="js/helper.js"></script>
         <script src="js/main.js?v6"></script>

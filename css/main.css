@@ -84,7 +84,10 @@ font-weight: 100;
  font-weight:100;
  text-shadow:0px 0px 2px #333;
  text-align:center;
- margin-top:200px;
+}
+
+#currentLine{
+	margin-top:20px;
 }
 
 #currentSyllable{
@@ -113,7 +116,7 @@ font-weight: 100;
  cursor:pointer;
 }
 
-#currentBook{
+#currentBook, #currentLineNum{
 	text-align: center;
 	font-weight: 100;
 }
@@ -165,14 +168,6 @@ font-weight: 100;
  background-size:25px;	
 }
 
-#wrapper{
- width:100%;
- position:absolute;
- height:400px;
- top:50%;
- margin-top:-200px;	
-}
-
 .done-true {
   text-decoration: line-through;
   color: grey;
@@ -180,7 +175,7 @@ font-weight: 100;
 
 #currentScore{
 	position:absolute;
-	top:0px;
+	bottom:20px;
 	left:30%;
 }
 
