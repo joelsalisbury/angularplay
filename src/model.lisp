@@ -1,5 +1,6 @@
 (in-package :scansion)
 
+;;; Some configuration
 (setf web:*app-name* "SCANSION")
 (setf web:*local-database-url* "SCANSION_DB")
 
