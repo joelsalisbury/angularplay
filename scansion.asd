@@ -1,3 +1,4 @@
+;;; Add the directories for our dependencies to ASDF.
 (push #p"./dep/dpc-cl/" asdf:*central-registry*)
 (push #p"./dep/web/" asdf:*central-registry*)
 (push #p"./dep/testing/" asdf:*central-registry*)
