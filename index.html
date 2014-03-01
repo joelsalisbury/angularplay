@@ -47,14 +47,12 @@
                 <h2 id="currentLineNum">Line number: {{currentLine+1}}</h2>
                 <h4 id="currentLine"><span id="syl{{syllable.id}}" class="syl {{syllable.highlight}} {{syllable.answer}}" ng-repeat= "syllable in renderedSyllables">{{syllable.text}}</span></h4>
 
-
-                <div id="controls">
-                    <h2></h2>
+                <div class="{{hideControls}}" id="controls">
+                    <h2>{{currentCorrect}}</h2>
                     <a class="short" ng-click="evaluateResponse('u')">short</a>
                     <a class="long" ng-click="evaluateResponse('-')">long</a>
+                    <a class="nextline" ng-click="evaluateResponse('x')">next line</a>
                 </div>
-
-
 
                 <div id= "currentScore">
                     <h1>{{currentScore}} ({{multiplier}}X)</h1>

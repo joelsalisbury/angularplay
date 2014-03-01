@@ -114,6 +114,19 @@ font-weight: 100;
  text-indent:-99999px;
  color: transparent; 
  cursor:pointer;
+ transition:.5s;
+ -webkit-transition:.5s;
+ -moz-user-select: none; 
+    -khtml-user-select: none; 
+    -webkit-user-select: none; 
+    -o-user-select: none; 
+}
+
+#controls a.nextline{
+	text-indent: 0px;
+	text-align: center;
+	color: #d84ed7;
+	display:none;
 }
 
 #currentBook, #currentLineNum{
@@ -128,7 +141,15 @@ font-weight: 100;
 
 #controls a.long{
 	background:#eee url(../img/long.png) no-repeat center center;
-	 background-size:30%;
+	background-size:30%;
+}
+
+.hideControls a.short, .hideControls a.long{
+	display:none;
+}
+
+#controls.hideControls a.nextline{
+	display: inline;
 }
 
 .syl{
