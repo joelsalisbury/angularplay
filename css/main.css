@@ -65,68 +65,131 @@ textarea {
    Author's custom styles
    ========================================================================== */
 
+body,html{
+	height: 100%;
+}
 
-body{background:url(../img/bg2.jpg) no-repeat center center fixed;
-background-size:cover;
--webkit-background-size: cover;
--moz-background-size: cover;
--o-background-size: cover;
+#homeCntrl{
+	padding-top:24px;
+}
+
+#homeCntrl img{
+	max-width: 100%;
+}
+
+#lineCntrl{
+	width:100%;
+}
+
+body{
+background:#ecf0f1;
 color:#fff;
 margin:0 auto;
-width:100%;
-font-family: "Helvetica Neue", -apple-system-font;
+height:100%;
+font-family: -apple-system-font, "Helvetica Neue";
 font-weight: 100;
+text-align: center;
+}
+
+#appWrap{
+	width: 95%; /* Firefox needs this */
+    margin:0 auto;
+    height: 100%; /* Height can be anything */	
+    background:url(../img/bg.png) no-repeat center center;
+    background-size:contain;
+}
+
+#the-view{
+	height:100%;
+	position: relative;
+}
+
+.centerWrap{
+	width: 100%; /* Firefox needs this */
+	position: relative;
+    margin:0 auto;
+    height: 100%; /* Height can be anything */
+        
+    /* WebKit (Chrome & Safari) */
+    display: -webkit-box;
+    -webkit-box-pack: center;
+    -webkit-box-align: center;
+    
+    /* Firefox */
+    display: -moz-box;
+    -moz-box-pack: center;
+    -moz-box-align: center;
+    
+    /* IE */
+    display: -ms-box;
+    -ms-box-pack: center;
+    -ms-box-align: center;
+    
+     /* Native CSS */
+    display: box;
+    box-pack: center;
+    box-align: center;
 }
 
 #currentLine,#currentSyllable{
- color:#fff;
+ color:#000;
  font-size:44px;	
  font-weight:100;
- text-shadow:0px 0px 2px #333;
  text-align:center;
-}
-
-#currentLine{
-	margin-top:20px;
 }
 
 #currentSyllable{
 	font-size:24px;
 }
 
-.highlight-blue{
-	color: #4e9dd8;
+.highlight-current{
+	color: #5c0bb3;
+}
+
+#homeCntrl #controls{
+	margin-top:45px;
 }
 
 #controls{
 	text-align: center;
+	position: relative;
+	z-index: 9999;
 }
 
 #controls a{
  font-size:24px;
 
- background-color:#fff;
+ background-color:#5c0bb3;
  border:1px solid #e3e3e3;
-
+ color:#fff;
  margin-right:10px;
 
  padding:10px 80px!important;
  text-indent:-99999px;
  color: transparent; 
  cursor:pointer;
- transition:.5s;
- -webkit-transition:.5s;
+
  -moz-user-select: none; 
     -khtml-user-select: none; 
     -webkit-user-select: none; 
     -o-user-select: none; 
+    display:inline-block;
 }
 
-#controls a.nextline{
+#controls a.tap{
+	background-color:#9b59b6;
+}
+
+#controls a.nextline, #controls a.goplay{
 	text-indent: 0px;
 	text-align: center;
-	color: #d84ed7;
+	color: #fff;
 	display:none;
+}
+
+#controls a.goplay{
+	display: inline-block;
+	text-decoration: none;
 }
 
 #currentBook, #currentLineNum{
@@ -135,40 +198,43 @@ font-weight: 100;
 }
 
 #controls a.short{
-	background:#eee url(../img/short.png) no-repeat center center;
-	 background-size:30%;
+	background-image:url(../img/short.png?v=2014-03-01);
+	background-repeat:no-repeat;
+	background-position:center center;
+	background-size:30%;
 }
-
 #controls a.long{
-	background:#eee url(../img/long.png) no-repeat center center;
+	background-image:url(../img/long.png?v=2014-03-01);
+	background-repeat:no-repeat;
+	background-position:center center;
 	background-size:30%;
 }
 
-.hideControls a.short, .hideControls a.long{
+#controls.hideControls a.short, #controls.hideControls a.long{
 	display:none;
 }
 
 #controls.hideControls a.nextline{
-	display: inline;
+	display: inline-block;
 }
 
 .syl{
  padding-top:35px;	
  position:relative;
-   -o-transition:.5s;
-  -ms-transition:.5s;
-  -moz-transition:.5s;
-  -webkit-transition:.5s;
+   -o-transition:.25s;
+  -ms-transition:.25s;
+  -moz-transition:.25s;
+  -webkit-transition:.25s;
   /* ...and now for the proper property */
-  transition:.5s;
+  transition:.25s;
 }
 
-.highlight-red{
+.highlight-wrong{
  color:red;	
 }
 
-.highlight-green{
- color:green;	
+.highlight-right{
+ color:#2ecc71;	
 }
 
 .sylspan .correctanswer{
@@ -180,12 +246,12 @@ font-weight: 100;
 }
 
 .sylspan .correctanswer.short{
- background:url(../img/short.png) no-repeat center center;
+ background:url(../img/short.png?v03-01-2014) no-repeat center center;
  background-size:25px;	
 }
 
 .sylspan .correctanswer.long{
- background:url(../img/long.png) no-repeat center center;
+ background:url(../img/long.png?v03-01-2014) no-repeat center center;
  background-size:25px;	
 }
 
@@ -195,16 +261,48 @@ font-weight: 100;
 }
 
 #currentScore{
-	position:absolute;
-	bottom:20px;
-	left:30%;
+	color:#5c0bb3;
+	text-align: left;
+	height:35px;
+	line-height: 35px;
+	position: absolute;
+	bottom:45px;
+	width:100%;
+	margin:0 auto;
+}
+
+.multiplier{
+	border:2px solid #5c0bb3;
+	color:#5c0bb3;
+	display:inline-block;
+	width:30px;
+	height:30px;
+	border-radius: 99999px;
+	line-height: 30px;
+	font-size:13px;
+	text-align: center;
+	position: relative;
+	top:-5px;
+	font-weight: 600;
+	left:10px;
 }
 
 #currentScore h1, #currentScore h2, #currentScore h3{
-	font-family: "Helvetica Neue", -apple-system-font;
+	font-family: -apple-system-font, "Helvetica Neue";
 	font-weight: 100;
 	transition: 1s;
 	-webkit-transition:1s;
+	color:#5c0bb3;
+	float:left;
+	display: block;
+}
+
+
+#currentScore h1{
+	float:right;
+	font-size:22px;
+	padding:0px;
+	width:125px;
 }
 
 .show-setup {

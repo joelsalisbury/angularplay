@@ -1,4 +1,39 @@
-var scansionApp = angular.module('scansionApp', []);
+Zepto('#controls a').on('touchstart',
+    function(){
+        Zepto(this).addClass('tap')
+    }
+);
+
+Zepto('#controls a').on('touchend',
+    function(){
+        Zepto(this).removeClass('tap')
+    }
+);
+
+var scansionApp = angular.module('scansionApp', ['ngRoute']).run(function() {
+    FastClick.attach(document.body);
+  });
+
+    scansionApp.config(['$routeProvider',
+  function($routeProvider) {
+    $routeProvider.
+      when('/home', {
+        templateUrl: 'templates/home.html',
+        controller: 'homeCntrl'
+      }).
+      when('/game', {
+        templateUrl: 'templates/game.html',
+        controller: 'lineCntrl'
+      }).
+      otherwise({
+        redirectTo: '/home'
+      });
+  }]);
+
+
+ scansionApp.controller('homeCntrl', function ($scope) {
+    
+ });   
  
 scansionApp.controller('lineCntrl', function ($scope) {
   $scope.currentLine = 0;
@@ -12,7 +47,7 @@ scansionApp.controller('lineCntrl', function ($scope) {
   $scope.currentSyl = 0;
 
   $scope.book = {
-                "title" : "The Aeneid",
+                "title" : "Virgil, Aeneid",
                 "lines":[{"id":1,"string":"arma virumque cano, Troiae qui primus ab oris","syllables":[
                 {"id":0,"text":"ar","quantity":"-","start":0,"charCnt":2},
                 {"id":1,"text":"ma","quantity":"u","start":2,"charCnt":2},
@@ -70,7 +105,6 @@ scansionApp.controller('lineCntrl', function ($scope) {
                 var remainderText;
                if(remainder){
                     remainderText = fullLine.substr(sylNext.start-remainder, remainder);
-                    console.log(remainderText);
                     $scope.renderedSyllables.push({
                         text : remainderText
                     })
@@ -100,7 +134,7 @@ scansionApp.controller('lineCntrl', function ($scope) {
 
         //but always
         if($scope.renderedSyllables[i].highlightable)
-            $scope.renderedSyllables[i].highlight = "highlight-blue";
+            $scope.renderedSyllables[i].highlight = "highlight-current";
         else{
             $scope.highlightNextSyl();
 
@@ -116,12 +150,12 @@ scansionApp.controller('lineCntrl', function ($scope) {
         var currentSylObj = $scope.renderedSyllables[$scope.currentSyl];
         if (correctResponse == response){
             isCorrect = true;
-            currentSylObj.highlight = "highlight-green";
+            currentSylObj.highlight = "highlight-right";
             $scope.activeStreak++;
             $scope.currentScore += $scope.multiplier * $scope.incrementer;
        }
         else{
-            currentSylObj.highlight = "highlight-red";
+            currentSylObj.highlight = "highlight-wrong";
             $scope.activeStreak = 0;
         }
         
@@ -131,16 +165,19 @@ scansionApp.controller('lineCntrl', function ($scope) {
     }
 
     $scope.evaluateStreak = function(){
+        console.log("activeStreak:"+ $scope.activeStreak);
         //1-9: 6pts each (multiplier is 1)
-        if($scope.activeStreak < 0 && $scope.activeStreak > 10){
+        if(($scope.activeStreak >= 0) && ($scope.activeStreak < 10)){
+            console.log('multiplier is 1!');
             $scope.multiplier = 1;
         }
         //10-19: 18pts each (multiplier is 3)
-        if($scope.activeStreak < 9 && $scope.activeStreak > 20){
+        if($scope.activeStreak > 9 && $scope.activeStreak < 20){
+            console.log('multiplier increased to 3!');
             $scope.multiplier = 3;
         }        
         //20-29: 24pts each (multiplier is 4)
-        if($scope.activeStreak < 19 && $scope.activeStreak > 30){
+        if($scope.activeStreak > 19 && $scope.activeStreak < 30){
             $scope.multiplier = 4;
         }  
 

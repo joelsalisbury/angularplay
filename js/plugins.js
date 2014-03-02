@@ -21,6 +21,783 @@
     }
 }());
 
+
+
+
+/**
+ * @preserve FastClick: polyfill to remove click delays on browsers with touch UIs.
+ *
+ * @version 1.0.0
+ * @codingstandard ftlabs-jsv2
+ * @copyright The Financial Times Limited [All Rights Reserved]
+ * @license MIT License (see LICENSE.txt)
+ */
+
+/*jslint browser:true, node:true*/
+/*global define, Event, Node*/
+
+
+/**
+ * Instantiate fast-clicking listeners on the specificed layer.
+ *
+ * @constructor
+ * @param {Element} layer The layer to listen on
+ */
+function FastClick(layer) {
+	'use strict';
+	var oldOnClick;
+
+
+	/**
+	 * Whether a click is currently being tracked.
+	 *
+	 * @type boolean
+	 */
+	this.trackingClick = false;
+
+
+	/**
+	 * Timestamp for when when click tracking started.
+	 *
+	 * @type number
+	 */
+	this.trackingClickStart = 0;
+
+
+	/**
+	 * The element being tracked for a click.
+	 *
+	 * @type EventTarget
+	 */
+	this.targetElement = null;
+
+
+	/**
+	 * X-coordinate of touch start event.
+	 *
+	 * @type number
+	 */
+	this.touchStartX = 0;
+
+
+	/**
+	 * Y-coordinate of touch start event.
+	 *
+	 * @type number
+	 */
+	this.touchStartY = 0;
+
+
+	/**
+	 * ID of the last touch, retrieved from Touch.identifier.
+	 *
+	 * @type number
+	 */
+	this.lastTouchIdentifier = 0;
+
+
+	/**
+	 * Touchmove boundary, beyond which a click will be cancelled.
+	 *
+	 * @type number
+	 */
+	this.touchBoundary = 10;
+
+
+	/**
+	 * The FastClick layer.
+	 *
+	 * @type Element
+	 */
+	this.layer = layer;
+
+	if (FastClick.notNeeded(layer)) {
+		return;
+	}
+
+	// Some old versions of Android don't have Function.prototype.bind
+	function bind(method, context) {
+		return function() { return method.apply(context, arguments); };
+	}
+
+	// Set up event handlers as required
+	if (deviceIsAndroid) {
+		layer.addEventListener('mouseover', bind(this.onMouse, this), true);
+		layer.addEventListener('mousedown', bind(this.onMouse, this), true);
+		layer.addEventListener('mouseup', bind(this.onMouse, this), true);
+	}
+
+	layer.addEventListener('click', bind(this.onClick, this), true);
+	layer.addEventListener('touchstart', bind(this.onTouchStart, this), false);
+	layer.addEventListener('touchmove', bind(this.onTouchMove, this), false);
+	layer.addEventListener('touchend', bind(this.onTouchEnd, this), false);
+	layer.addEventListener('touchcancel', bind(this.onTouchCancel, this), false);
+
+	// Hack is required for browsers that don't support Event#stopImmediatePropagation (e.g. Android 2)
+	// which is how FastClick normally stops click events bubbling to callbacks registered on the FastClick
+	// layer when they are cancelled.
+	if (!Event.prototype.stopImmediatePropagation) {
+		layer.removeEventListener = function(type, callback, capture) {
+			var rmv = Node.prototype.removeEventListener;
+			if (type === 'click') {
+				rmv.call(layer, type, callback.hijacked || callback, capture);
+			} else {
+				rmv.call(layer, type, callback, capture);
+			}
+		};
+
+		layer.addEventListener = function(type, callback, capture) {
+			var adv = Node.prototype.addEventListener;
+			if (type === 'click') {
+				adv.call(layer, type, callback.hijacked || (callback.hijacked = function(event) {
+					if (!event.propagationStopped) {
+						callback(event);
+					}
+				}), capture);
+			} else {
+				adv.call(layer, type, callback, capture);
+			}
+		};
+	}
+
+	// If a handler is already declared in the element's onclick attribute, it will be fired before
+	// FastClick's onClick handler. Fix this by pulling out the user-defined handler function and
+	// adding it as listener.
+	if (typeof layer.onclick === 'function') {
+
+		// Android browser on at least 3.2 requires a new reference to the function in layer.onclick
+		// - the old one won't work if passed to addEventListener directly.
+		oldOnClick = layer.onclick;
+		layer.addEventListener('click', function(event) {
+			oldOnClick(event);
+		}, false);
+		layer.onclick = null;
+	}
+}
+
+
+/**
+ * Android requires exceptions.
+ *
+ * @type boolean
+ */
+var deviceIsAndroid = navigator.userAgent.indexOf('Android') > 0;
+
+
+/**
+ * iOS requires exceptions.
+ *
+ * @type boolean
+ */
+var deviceIsIOS = /iP(ad|hone|od)/.test(navigator.userAgent);
+
+
+/**
+ * iOS 4 requires an exception for select elements.
+ *
+ * @type boolean
+ */
+var deviceIsIOS4 = deviceIsIOS && (/OS 4_\d(_\d)?/).test(navigator.userAgent);
+
+
+/**
+ * iOS 6.0(+?) requires the target element to be manually derived
+ *
+ * @type boolean
+ */
+var deviceIsIOSWithBadTarget = deviceIsIOS && (/OS ([6-9]|\d{2})_\d/).test(navigator.userAgent);
+
+
+/**
+ * Determine whether a given element requires a native click.
+ *
+ * @param {EventTarget|Element} target Target DOM element
+ * @returns {boolean} Returns true if the element needs a native click
+ */
+FastClick.prototype.needsClick = function(target) {
+	'use strict';
+	switch (target.nodeName.toLowerCase()) {
+
+	// Don't send a synthetic click to disabled inputs (issue #62)
+	case 'button':
+	case 'select':
+	case 'textarea':
+		if (target.disabled) {
+			return true;
+		}
+
+		break;
+	case 'input':
+
+		// File inputs need real clicks on iOS 6 due to a browser bug (issue #68)
+		if ((deviceIsIOS && target.type === 'file') || target.disabled) {
+			return true;
+		}
+
+		break;
+	case 'label':
+	case 'video':
+		return true;
+	}
+
+	return (/\bneedsclick\b/).test(target.className);
+};
+
+
+/**
+ * Determine whether a given element requires a call to focus to simulate click into element.
+ *
+ * @param {EventTarget|Element} target Target DOM element
+ * @returns {boolean} Returns true if the element requires a call to focus to simulate native click.
+ */
+FastClick.prototype.needsFocus = function(target) {
+	'use strict';
+	switch (target.nodeName.toLowerCase()) {
+	case 'textarea':
+		return true;
+	case 'select':
+		return !deviceIsAndroid;
+	case 'input':
+		switch (target.type) {
+		case 'button':
+		case 'checkbox':
+		case 'file':
+		case 'image':
+		case 'radio':
+		case 'submit':
+			return false;
+		}
+
+		// No point in attempting to focus disabled inputs
+		return !target.disabled && !target.readOnly;
+	default:
+		return (/\bneedsfocus\b/).test(target.className);
+	}
+};
+
+
+/**
+ * Send a click event to the specified element.
+ *
+ * @param {EventTarget|Element} targetElement
+ * @param {Event} event
+ */
+FastClick.prototype.sendClick = function(targetElement, event) {
+	'use strict';
+	var clickEvent, touch;
+
+	// On some Android devices activeElement needs to be blurred otherwise the synthetic click will have no effect (#24)
+	if (document.activeElement && document.activeElement !== targetElement) {
+		document.activeElement.blur();
+	}
+
+	touch = event.changedTouches[0];
+
+	// Synthesise a click event, with an extra attribute so it can be tracked
+	clickEvent = document.createEvent('MouseEvents');
+	clickEvent.initMouseEvent(this.determineEventType(targetElement), true, true, window, 1, touch.screenX, touch.screenY, touch.clientX, touch.clientY, false, false, false, false, 0, null);
+	clickEvent.forwardedTouchEvent = true;
+	targetElement.dispatchEvent(clickEvent);
+};
+
+FastClick.prototype.determineEventType = function(targetElement) {
+	'use strict';
+
+	//Issue #159: Android Chrome Select Box does not open with a synthetic click event
+	if (deviceIsAndroid && targetElement.tagName.toLowerCase() === 'select') {
+		return 'mousedown';
+	}
+
+	return 'click';
+};
+
+
+/**
+ * @param {EventTarget|Element} targetElement
+ */
+FastClick.prototype.focus = function(targetElement) {
+	'use strict';
+	var length;
+
+	// Issue #160: on iOS 7, some input elements (e.g. date datetime) throw a vague TypeError on setSelectionRange. These elements don't have an integer value for the selectionStart and selectionEnd properties, but unfortunately that can't be used for detection because accessing the properties also throws a TypeError. Just check the type instead. Filed as Apple bug #15122724.
+	if (deviceIsIOS && targetElement.setSelectionRange && targetElement.type.indexOf('date') !== 0 && targetElement.type !== 'time') {
+		length = targetElement.value.length;
+		targetElement.setSelectionRange(length, length);
+	} else {
+		targetElement.focus();
+	}
+};
+
+
+/**
+ * Check whether the given target element is a child of a scrollable layer and if so, set a flag on it.
+ *
+ * @param {EventTarget|Element} targetElement
+ */
+FastClick.prototype.updateScrollParent = function(targetElement) {
+	'use strict';
+	var scrollParent, parentElement;
+
+	scrollParent = targetElement.fastClickScrollParent;
+
+	// Attempt to discover whether the target element is contained within a scrollable layer. Re-check if the
+	// target element was moved to another parent.
+	if (!scrollParent || !scrollParent.contains(targetElement)) {
+		parentElement = targetElement;
+		do {
+			if (parentElement.scrollHeight > parentElement.offsetHeight) {
+				scrollParent = parentElement;
+				targetElement.fastClickScrollParent = parentElement;
+				break;
+			}
+
+			parentElement = parentElement.parentElement;
+		} while (parentElement);
+	}
+
+	// Always update the scroll top tracker if possible.
+	if (scrollParent) {
+		scrollParent.fastClickLastScrollTop = scrollParent.scrollTop;
+	}
+};
+
+
+/**
+ * @param {EventTarget} targetElement
+ * @returns {Element|EventTarget}
+ */
+FastClick.prototype.getTargetElementFromEventTarget = function(eventTarget) {
+	'use strict';
+
+	// On some older browsers (notably Safari on iOS 4.1 - see issue #56) the event target may be a text node.
+	if (eventTarget.nodeType === Node.TEXT_NODE) {
+		return eventTarget.parentNode;
+	}
+
+	return eventTarget;
+};
+
+
+/**
+ * On touch start, record the position and scroll offset.
+ *
+ * @param {Event} event
+ * @returns {boolean}
+ */
+FastClick.prototype.onTouchStart = function(event) {
+	'use strict';
+	var targetElement, touch, selection;
+
+	// Ignore multiple touches, otherwise pinch-to-zoom is prevented if both fingers are on the FastClick element (issue #111).
+	if (event.targetTouches.length > 1) {
+		return true;
+	}
+
+	targetElement = this.getTargetElementFromEventTarget(event.target);
+	touch = event.targetTouches[0];
+
+	if (deviceIsIOS) {
+
+		// Only trusted events will deselect text on iOS (issue #49)
+		selection = window.getSelection();
+		if (selection.rangeCount && !selection.isCollapsed) {
+			return true;
+		}
+
+		if (!deviceIsIOS4) {
+
+			// Weird things happen on iOS when an alert or confirm dialog is opened from a click event callback (issue #23):
+			// when the user next taps anywhere else on the page, new touchstart and touchend events are dispatched
+			// with the same identifier as the touch event that previously triggered the click that triggered the alert.
+			// Sadly, there is an issue on iOS 4 that causes some normal touch events to have the same identifier as an
+			// immediately preceeding touch event (issue #52), so this fix is unavailable on that platform.
+			if (touch.identifier === this.lastTouchIdentifier) {
+				event.preventDefault();
+				return false;
+			}
+
+			this.lastTouchIdentifier = touch.identifier;
+
+			// If the target element is a child of a scrollable layer (using -webkit-overflow-scrolling: touch) and:
+			// 1) the user does a fling scroll on the scrollable layer
+			// 2) the user stops the fling scroll with another tap
+			// then the event.target of the last 'touchend' event will be the element that was under the user's finger
+			// when the fling scroll was started, causing FastClick to send a click event to that layer - unless a check
+			// is made to ensure that a parent layer was not scrolled before sending a synthetic click (issue #42).
+			this.updateScrollParent(targetElement);
+		}
+	}
+
+	this.trackingClick = true;
+	this.trackingClickStart = event.timeStamp;
+	this.targetElement = targetElement;
+
+	this.touchStartX = touch.pageX;
+	this.touchStartY = touch.pageY;
+
+	// Prevent phantom clicks on fast double-tap (issue #36)
+	if ((event.timeStamp - this.lastClickTime) < 200) {
+		event.preventDefault();
+	}
+
+	return true;
+};
+
+
+/**
+ * Based on a touchmove event object, check whether the touch has moved past a boundary since it started.
+ *
+ * @param {Event} event
+ * @returns {boolean}
+ */
+FastClick.prototype.touchHasMoved = function(event) {
+	'use strict';
+	var touch = event.changedTouches[0], boundary = this.touchBoundary;
+
+	if (Math.abs(touch.pageX - this.touchStartX) > boundary || Math.abs(touch.pageY - this.touchStartY) > boundary) {
+		return true;
+	}
+
+	return false;
+};
+
+
+/**
+ * Update the last position.
+ *
+ * @param {Event} event
+ * @returns {boolean}
+ */
+FastClick.prototype.onTouchMove = function(event) {
+	'use strict';
+	if (!this.trackingClick) {
+		return true;
+	}
+
+	// If the touch has moved, cancel the click tracking
+	if (this.targetElement !== this.getTargetElementFromEventTarget(event.target) || this.touchHasMoved(event)) {
+		this.trackingClick = false;
+		this.targetElement = null;
+	}
+
+	return true;
+};
+
+
+/**
+ * Attempt to find the labelled control for the given label element.
+ *
+ * @param {EventTarget|HTMLLabelElement} labelElement
+ * @returns {Element|null}
+ */
+FastClick.prototype.findControl = function(labelElement) {
+	'use strict';
+
+	// Fast path for newer browsers supporting the HTML5 control attribute
+	if (labelElement.control !== undefined) {
+		return labelElement.control;
+	}
+
+	// All browsers under test that support touch events also support the HTML5 htmlFor attribute
+	if (labelElement.htmlFor) {
+		return document.getElementById(labelElement.htmlFor);
+	}
+
+	// If no for attribute exists, attempt to retrieve the first labellable descendant element
+	// the list of which is defined here: http://www.w3.org/TR/html5/forms.html#category-label
+	return labelElement.querySelector('button, input:not([type=hidden]), keygen, meter, output, progress, select, textarea');
+};
+
+
+/**
+ * On touch end, determine whether to send a click event at once.
+ *
+ * @param {Event} event
+ * @returns {boolean}
+ */
+FastClick.prototype.onTouchEnd = function(event) {
+	'use strict';
+	var forElement, trackingClickStart, targetTagName, scrollParent, touch, targetElement = this.targetElement;
+
+	if (!this.trackingClick) {
+		return true;
+	}
+
+	// Prevent phantom clicks on fast double-tap (issue #36)
+	if ((event.timeStamp - this.lastClickTime) < 200) {
+		this.cancelNextClick = true;
+		return true;
+	}
+
+	// Reset to prevent wrong click cancel on input (issue #156).
+	this.cancelNextClick = false;
+
+	this.lastClickTime = event.timeStamp;
+
+	trackingClickStart = this.trackingClickStart;
+	this.trackingClick = false;
+	this.trackingClickStart = 0;
+
+	// On some iOS devices, the targetElement supplied with the event is invalid if the layer
+	// is performing a transition or scroll, and has to be re-detected manually. Note that
+	// for this to function correctly, it must be called *after* the event target is checked!
+	// See issue #57; also filed as rdar://13048589 .
+	if (deviceIsIOSWithBadTarget) {
+		touch = event.changedTouches[0];
+
+		// In certain cases arguments of elementFromPoint can be negative, so prevent setting targetElement to null
+		targetElement = document.elementFromPoint(touch.pageX - window.pageXOffset, touch.pageY - window.pageYOffset) || targetElement;
+		targetElement.fastClickScrollParent = this.targetElement.fastClickScrollParent;
+	}
+
+	targetTagName = targetElement.tagName.toLowerCase();
+	if (targetTagName === 'label') {
+		forElement = this.findControl(targetElement);
+		if (forElement) {
+			this.focus(targetElement);
+			if (deviceIsAndroid) {
+				return false;
+			}
+
+			targetElement = forElement;
+		}
+	} else if (this.needsFocus(targetElement)) {
+
+		// Case 1: If the touch started a while ago (best guess is 100ms based on tests for issue #36) then focus will be triggered anyway. Return early and unset the target element reference so that the subsequent click will be allowed through.
+		// Case 2: Without this exception for input elements tapped when the document is contained in an iframe, then any inputted text won't be visible even though the value attribute is updated as the user types (issue #37).
+		if ((event.timeStamp - trackingClickStart) > 100 || (deviceIsIOS && window.top !== window && targetTagName === 'input')) {
+			this.targetElement = null;
+			return false;
+		}
+
+		this.focus(targetElement);
+		this.sendClick(targetElement, event);
+
+		// Select elements need the event to go through on iOS 4, otherwise the selector menu won't open.
+		if (!deviceIsIOS4 || targetTagName !== 'select') {
+			this.targetElement = null;
+			event.preventDefault();
+		}
+
+		return false;
+	}
+
+	if (deviceIsIOS && !deviceIsIOS4) {
+
+		// Don't send a synthetic click event if the target element is contained within a parent layer that was scrolled
+		// and this tap is being used to stop the scrolling (usually initiated by a fling - issue #42).
+		scrollParent = targetElement.fastClickScrollParent;
+		if (scrollParent && scrollParent.fastClickLastScrollTop !== scrollParent.scrollTop) {
+			return true;
+		}
+	}
+
+	// Prevent the actual click from going though - unless the target node is marked as requiring
+	// real clicks or if it is in the whitelist in which case only non-programmatic clicks are permitted.
+	if (!this.needsClick(targetElement)) {
+		event.preventDefault();
+		this.sendClick(targetElement, event);
+	}
+
+	return false;
+};
+
+
+/**
+ * On touch cancel, stop tracking the click.
+ *
+ * @returns {void}
+ */
+FastClick.prototype.onTouchCancel = function() {
+	'use strict';
+	this.trackingClick = false;
+	this.targetElement = null;
+};
+
+
+/**
+ * Determine mouse events which should be permitted.
+ *
+ * @param {Event} event
+ * @returns {boolean}
+ */
+FastClick.prototype.onMouse = function(event) {
+	'use strict';
+
+	// If a target element was never set (because a touch event was never fired) allow the event
+	if (!this.targetElement) {
+		return true;
+	}
+
+	if (event.forwardedTouchEvent) {
+		return true;
+	}
+
+	// Programmatically generated events targeting a specific element should be permitted
+	if (!event.cancelable) {
+		return true;
+	}
+
+	// Derive and check the target element to see whether the mouse event needs to be permitted;
+	// unless explicitly enabled, prevent non-touch click events from triggering actions,
+	// to prevent ghost/doubleclicks.
+	if (!this.needsClick(this.targetElement) || this.cancelNextClick) {
+
+		// Prevent any user-added listeners declared on FastClick element from being fired.
+		if (event.stopImmediatePropagation) {
+			event.stopImmediatePropagation();
+		} else {
+
+			// Part of the hack for browsers that don't support Event#stopImmediatePropagation (e.g. Android 2)
+			event.propagationStopped = true;
+		}
+
+		// Cancel the event
+		event.stopPropagation();
+		event.preventDefault();
+
+		return false;
+	}
+
+	// If the mouse event is permitted, return true for the action to go through.
+	return true;
+};
+
+
+/**
+ * On actual clicks, determine whether this is a touch-generated click, a click action occurring
+ * naturally after a delay after a touch (which needs to be cancelled to avoid duplication), or
+ * an actual click which should be permitted.
+ *
+ * @param {Event} event
+ * @returns {boolean}
+ */
+FastClick.prototype.onClick = function(event) {
+	'use strict';
+	var permitted;
+
+	// It's possible for another FastClick-like library delivered with third-party code to fire a click event before FastClick does (issue #44). In that case, set the click-tracking flag back to false and return early. This will cause onTouchEnd to return early.
+	if (this.trackingClick) {
+		this.targetElement = null;
+		this.trackingClick = false;
+		return true;
+	}
+
+	// Very odd behaviour on iOS (issue #18): if a submit element is present inside a form and the user hits enter in the iOS simulator or clicks the Go button on the pop-up OS keyboard the a kind of 'fake' click event will be triggered with the submit-type input element as the target.
+	if (event.target.type === 'submit' && event.detail === 0) {
+		return true;
+	}
+
+	permitted = this.onMouse(event);
+
+	// Only unset targetElement if the click is not permitted. This will ensure that the check for !targetElement in onMouse fails and the browser's click doesn't go through.
+	if (!permitted) {
+		this.targetElement = null;
+	}
+
+	// If clicks are permitted, return true for the action to go through.
+	return permitted;
+};
+
+
+/**
+ * Remove all FastClick's event listeners.
+ *
+ * @returns {void}
+ */
+FastClick.prototype.destroy = function() {
+	'use strict';
+	var layer = this.layer;
+
+	if (deviceIsAndroid) {
+		layer.removeEventListener('mouseover', this.onMouse, true);
+		layer.removeEventListener('mousedown', this.onMouse, true);
+		layer.removeEventListener('mouseup', this.onMouse, true);
+	}
+
+	layer.removeEventListener('click', this.onClick, true);
+	layer.removeEventListener('touchstart', this.onTouchStart, false);
+	layer.removeEventListener('touchmove', this.onTouchMove, false);
+	layer.removeEventListener('touchend', this.onTouchEnd, false);
+	layer.removeEventListener('touchcancel', this.onTouchCancel, false);
+};
+
+
+/**
+ * Check whether FastClick is needed.
+ *
+ * @param {Element} layer The layer to listen on
+ */
+FastClick.notNeeded = function(layer) {
+	'use strict';
+	var metaViewport;
+	var chromeVersion;
+
+	// Devices that don't support touch don't need FastClick
+	if (typeof window.ontouchstart === 'undefined') {
+		return true;
+	}
+
+	// Chrome version - zero for other browsers
+	chromeVersion = +(/Chrome\/([0-9]+)/.exec(navigator.userAgent) || [,0])[1];
+
+	if (chromeVersion) {
+
+		if (deviceIsAndroid) {
+			metaViewport = document.querySelector('meta[name=viewport]');
+
+			if (metaViewport) {
+				// Chrome on Android with user-scalable="no" doesn't need FastClick (issue #89)
+				if (metaViewport.content.indexOf('user-scalable=no') !== -1) {
+					return true;
+				}
+				// Chrome 32 and above with width=device-width or less don't need FastClick
+				if (chromeVersion > 31 && window.innerWidth <= window.screen.width) {
+					return true;
+				}
+			}
+
+		// Chrome desktop doesn't need FastClick (issue #15)
+		} else {
+			return true;
+		}
+	}
+
+	// IE10 with -ms-touch-action: none, which disables double-tap-to-zoom (issue #97)
+	if (layer.style.msTouchAction === 'none') {
+		return true;
+	}
+
+	return false;
+};
+
+
+/**
+ * Factory method for creating a FastClick object
+ *
+ * @param {Element} layer The layer to listen on
+ */
+FastClick.attach = function(layer) {
+	'use strict';
+	return new FastClick(layer);
+};
+
+
+if (typeof define !== 'undefined' && define.amd) {
+
+	// AMD. Register as an anonymous module.
+	define(function() {
+		'use strict';
+		return FastClick;
+	});
+} else if (typeof module !== 'undefined' && module.exports) {
+	module.exports = FastClick.attach;
+	module.exports.FastClick = FastClick;
+} else {
+	window.FastClick = FastClick;
+}
+
+
 //     Zepto.js
 //     (c) 2010-2014 Thomas Fuchs
 //     Zepto.js may be freely distributed under the MIT license.
@@ -185,555 +962,4 @@
     'doubleTap', 'tap', 'singleTap', 'longTap'].forEach(function(eventName){
     $.fn[eventName] = function(callback){ return this.on(eventName, callback) }
   })
-})(Zepto)
-
-
-/*!
- * Add to Homescreen v2.0.8 ~ Copyright (c) 2013 Matteo Spinelli, http://cubiq.org
- * Released under MIT license, http://cubiq.org/license
- */
-var addToHome = (function (w) {
-	var nav = w.navigator,
-		isIDevice = 'platform' in nav && (/iphone|ipod|ipad/gi).test(nav.platform),
-		isIPad,
-		isRetina,
-		isSafari,
-		isStandalone,
-		OSVersion,
-		startX = 0,
-		startY = 0,
-		lastVisit = 0,
-		isExpired,
-		isSessionActive,
-		isReturningVisitor,
-		balloon,
-		overrideChecks,
-
-		positionInterval,
-		closeTimeout,
-
-		options = {
-			autostart: true,			// Automatically open the balloon
-			returningVisitor: false,	// Show the balloon to returning visitors only (setting this to true is highly recommended)
-			animationIn: 'drop',		// drop || bubble || fade
-			animationOut: 'fade',		// drop || bubble || fade
-			startDelay: 2000,			// 2 seconds from page load before the balloon appears
-			lifespan: 15000,			// 15 seconds before it is automatically destroyed
-			bottomOffset: 14,			// Distance of the balloon from bottom
-			expire: 0,					// Minutes to wait before showing the popup again (0 = always displayed)
-			message: '',				// Customize your message or force a language ('' = automatic)
-			touchIcon: false,			// Display the touch icon
-			arrow: true,				// Display the balloon arrow
-			hookOnLoad: true,			// Should we hook to onload event? (really advanced usage)
-			closeButton: true,			// Let the user close the balloon
-			iterations: 100				// Internal/debug use
-		},
-
-		intl = {
-			ar:    '<span dir="rtl">قم بتثبيت هذا التطبيق على <span dir="ltr">%device:</span>انقر<span dir="ltr">%icon</span> ،<strong>ثم اضفه الى الشاشة الرئيسية.</strong></span>',
-			ca_es: 'Per instal·lar aquesta aplicació al vostre %device premeu %icon i llavors <strong>Afegir a pantalla d\'inici</strong>.',
-			cs_cz: 'Pro instalaci aplikace na Váš %device, stiskněte %icon a v nabídce <strong>Přidat na plochu</strong>.',
-			da_dk: 'Tilføj denne side til din %device: tryk på %icon og derefter <strong>Føj til hjemmeskærm</strong>.',
-			de_de: 'Installieren Sie diese App auf Ihrem %device: %icon antippen und dann <strong>Zum Home-Bildschirm</strong>.',
-			el_gr: 'Εγκαταστήσετε αυτήν την Εφαρμογή στήν συσκευή σας %device: %icon μετά πατάτε <strong>Προσθήκη σε Αφετηρία</strong>.',
-			en_us: 'Install this web app on your %device: tap %icon and then <strong>Add to Home Screen</strong>.',
-			es_es: 'Para instalar esta app en su %device, pulse %icon y seleccione <strong>Añadir a pantalla de inicio</strong>.',
-			fi_fi: 'Asenna tämä web-sovellus laitteeseesi %device: paina %icon ja sen jälkeen valitse <strong>Lisää Koti-valikkoon</strong>.',
-			fr_fr: 'Ajoutez cette application sur votre %device en cliquant sur %icon, puis <strong>Ajouter à l\'écran d\'accueil</strong>.',
-			he_il: '<span dir="rtl">התקן אפליקציה זו על ה-%device שלך: הקש %icon ואז <strong>הוסף למסך הבית</strong>.</span>',
-			hr_hr: 'Instaliraj ovu aplikaciju na svoj %device: klikni na %icon i odaberi <strong>Dodaj u početni zaslon</strong>.',
-			hu_hu: 'Telepítse ezt a web-alkalmazást az Ön %device-jára: nyomjon a %icon-ra majd a <strong>Főképernyőhöz adás</strong> gombra.',
-			it_it: 'Installa questa applicazione sul tuo %device: premi su %icon e poi <strong>Aggiungi a Home</strong>.',
-			ja_jp: 'このウェブアプリをあなたの%deviceにインストールするには%iconをタップして<strong>ホーム画面に追加</strong>を選んでください。',
-			ko_kr: '%device에 웹앱을 설치하려면 %icon을 터치 후 "홈화면에 추가"를 선택하세요',
-			nb_no: 'Installer denne appen på din %device: trykk på %icon og deretter <strong>Legg til på Hjem-skjerm</strong>',
-			nl_nl: 'Installeer deze webapp op uw %device: tik %icon en dan <strong>Voeg toe aan beginscherm</strong>.',
-			pl_pl: 'Aby zainstalować tę aplikacje na %device: naciśnij %icon a następnie <strong>Dodaj jako ikonę</strong>.',
-			pt_br: 'Instale este aplicativo em seu %device: aperte %icon e selecione <strong>Adicionar à Tela Inicio</strong>.',
-			pt_pt: 'Para instalar esta aplicação no seu %device, prima o %icon e depois em <strong>Adicionar ao ecrã principal</strong>.',
-			ru_ru: 'Установите это веб-приложение на ваш %device: нажмите %icon, затем <strong>Добавить в «Домой»</strong>.',
-			sv_se: 'Lägg till denna webbapplikation på din %device: tryck på %icon och därefter <strong>Lägg till på hemskärmen</strong>.',
-			th_th: 'ติดตั้งเว็บแอพฯ นี้บน %device ของคุณ: แตะ %icon และ <strong>เพิ่มที่หน้าจอโฮม</strong>',
-			tr_tr: 'Bu uygulamayı %device\'a eklemek için %icon simgesine sonrasında <strong>Ana Ekrana Ekle</strong> düğmesine basın.',
-			uk_ua: 'Встановіть цей веб сайт на Ваш %device: натисніть %icon, а потім <strong>На початковий екран</strong>.',
-			zh_cn: '您可以将此应用程式安装到您的 %device 上。请按 %icon 然后点选<strong>添加至主屏幕</strong>。',
-			zh_tw: '您可以將此應用程式安裝到您的 %device 上。請按 %icon 然後點選<strong>加入主畫面螢幕</strong>。'
-		};
-
-	function init () {
-		// Preliminary check, all further checks are performed on iDevices only
-		if ( !isIDevice ) return;
-
-		var now = Date.now(),
-			i;
-
-		// Merge local with global options
-		if ( w.addToHomeConfig ) {
-			for ( i in w.addToHomeConfig ) {
-				options[i] = w.addToHomeConfig[i];
-			}
-		}
-		if ( !options.autostart ) options.hookOnLoad = false;
-
-		isIPad = (/ipad/gi).test(nav.platform);
-		isRetina = w.devicePixelRatio && w.devicePixelRatio > 1;
-		isSafari = (/Safari/i).test(nav.appVersion) && !(/CriOS/i).test(nav.appVersion);
-		isStandalone = nav.standalone;
-		OSVersion = nav.appVersion.match(/OS (\d+_\d+)/i);
-		OSVersion = OSVersion && OSVersion[1] ? +OSVersion[1].replace('_', '.') : 0;
-
-		lastVisit = +w.localStorage.getItem('addToHome');
-
-		isSessionActive = w.sessionStorage.getItem('addToHomeSession');
-		isReturningVisitor = options.returningVisitor ? lastVisit && lastVisit + 28*24*60*60*1000 > now : true;
-
-		if ( !lastVisit ) lastVisit = now;
-
-		// If it is expired we need to reissue a new balloon
-		isExpired = isReturningVisitor && lastVisit <= now;
-
-		if ( options.hookOnLoad ) w.addEventListener('load', loaded, false);
-		else if ( !options.hookOnLoad && options.autostart ) loaded();
-	}
-
-	function loaded () {
-		w.removeEventListener('load', loaded, false);
-
-		if ( !isReturningVisitor ) w.localStorage.setItem('addToHome', Date.now());
-		else if ( options.expire && isExpired ) w.localStorage.setItem('addToHome', Date.now() + options.expire * 60000);
-
-		if ( !overrideChecks && ( !isSafari || !isExpired || isSessionActive || isStandalone || !isReturningVisitor ) ) return;
-
-		var touchIcon = '',
-			platform = nav.platform.split(' ')[0],
-			language = nav.language.replace('-', '_');
-
-		balloon = document.createElement('div');
-		
-		balloon.id = 'addToHomeScreen';
-	
-	
-						
-		
-		
-		
-		
-		
-		
-		balloon.style.cssText += 'left:-9999px;-webkit-transition-property:-webkit-transform,opacity;-webkit-transition-duration:0;-webkit-transform:translate3d(0,0,0);position:' + (OSVersion < 5 ? 'absolute' : 'fixed');
-
-		// Localize message
-		if ( options.message in intl ) {		// You may force a language despite the user's locale
-			language = options.message;
-			options.message = '';
-		}
-		if ( options.message === '' ) {			// We look for a suitable language (defaulted to en_us)
-			options.message = language in intl ? intl[language] : intl['en_us'];
-		}
-
-		if ( options.touchIcon ) {
-			touchIcon = isRetina ?
-				document.querySelector('head link[rel^=apple-touch-icon][sizes="114x114"],head link[rel^=apple-touch-icon][sizes="144x144"],head link[rel^=apple-touch-icon]') :
-				document.querySelector('head link[rel^=apple-touch-icon][sizes="57x57"],head link[rel^=apple-touch-icon]');
-
-			if ( touchIcon ) {
-				touchIcon = '<span style="background-image:url(' + touchIcon.href + ')" class="addToHomeTouchIcon"></span>';
-			}
-		}	
-
-		balloon.className = (isIPad ? 'addToHomeIpad' : '') + (touchIcon ? ' addToHomeWide' : '') + (OSVersion >= 7 ? ' addToHomeios7' : ''); 
-
-		balloon.innerHTML = touchIcon +
-			options.message.replace('%device', platform).replace('%icon', OSVersion >= 4.2 ? '<span class="addToHomeShare' + (OSVersion >= 7 ? ' addToHomeShareOS7' : '') + '"></span>' : '<span class="addToHomePlus">+</span>') +
-			(options.arrow ? '<span class="addToHomeArrow"></span>' : '') +
-			(options.closeButton ? '<span class="addToHomeClose">\u00D7</span>' : '');
-
-		document.body.appendChild(balloon);
-
-		// Add the close action
-		if ( options.closeButton ) balloon.addEventListener('click', clicked, false);
-
-		if ( !isIPad && OSVersion >= 6 ) window.addEventListener('orientationchange', orientationCheck, false);
-
-		setTimeout(show, options.startDelay);
-	}
-
-	function show () {
-		var duration,
-			iPadXShift = 208;
-
-		// Set the initial position
-		if ( isIPad ) {
-			if ( OSVersion < 5 ) {
-				startY = w.scrollY;
-				startX = w.scrollX;
-			} else if ( OSVersion < 6 ) {
-				iPadXShift = 160;
-			}
-
-			balloon.style.top = startY + options.bottomOffset + 'px';
-			balloon.style.left = startX + iPadXShift - Math.round(balloon.offsetWidth / 2) + 'px';
-
-			switch ( options.animationIn ) {
-				case 'drop':
-					duration = '0.6s';
-					balloon.style.webkitTransform = 'translate3d(0,' + -(w.scrollY + options.bottomOffset + balloon.offsetHeight) + 'px,0)';
-					break;
-				case 'bubble':
-					duration = '0.6s';
-					balloon.style.opacity = '0';
-					balloon.style.webkitTransform = 'translate3d(0,' + (startY + 50) + 'px,0)';
-					break;
-				default:
-					duration = '1s';
-					balloon.style.opacity = '0';
-			}
-		} else {
-			startY = w.innerHeight + w.scrollY;
-
-			if ( OSVersion < 5 ) {
-				startX = Math.round((w.innerWidth - balloon.offsetWidth) / 2) + w.scrollX;
-				balloon.style.left = startX + 'px';
-				balloon.style.top = startY - balloon.offsetHeight - options.bottomOffset + 'px';
-			} else {
-				balloon.style.left = '50%';
-				balloon.style.marginLeft = -Math.round(balloon.offsetWidth / 2) - ( w.orientation%180 && OSVersion >= 6 ? 40 : 0 ) + 'px';
-				balloon.style.bottom = options.bottomOffset + 'px';
-			}
-
-			switch (options.animationIn) {
-				case 'drop':
-					duration = '1s';
-					balloon.style.webkitTransform = 'translate3d(0,' + -(startY + options.bottomOffset) + 'px,0)';
-					break;
-				case 'bubble':
-					duration = '0.6s';
-					balloon.style.webkitTransform = 'translate3d(0,' + (balloon.offsetHeight + options.bottomOffset + 50) + 'px,0)';
-					break;
-				default:
-					duration = '1s';
-					balloon.style.opacity = '0';
-			}
-		}
-
-		balloon.offsetHeight;	// repaint trick
-		balloon.style.webkitTransitionDuration = duration;
-		balloon.style.opacity = '1';
-		balloon.style.webkitTransform = 'translate3d(0,0,0)';
-		balloon.addEventListener('webkitTransitionEnd', transitionEnd, false);
-
-		closeTimeout = setTimeout(close, options.lifespan);
-	}
-
-	function manualShow (override) {
-		if ( !isIDevice || balloon ) return;
-
-		overrideChecks = override;
-		loaded();
-	}
-
-	function close () {
-		clearInterval( positionInterval );
-		clearTimeout( closeTimeout );
-		closeTimeout = null;
-
-		// check if the popup is displayed and prevent errors
-		if ( !balloon ) return;
-
-		var posY = 0,
-			posX = 0,
-			opacity = '1',
-			duration = '0';
-
-		if ( options.closeButton ) balloon.removeEventListener('click', clicked, false);
-		if ( !isIPad && OSVersion >= 6 ) window.removeEventListener('orientationchange', orientationCheck, false);
-
-		if ( OSVersion < 5 ) {
-			posY = isIPad ? w.scrollY - startY : w.scrollY + w.innerHeight - startY;
-			posX = isIPad ? w.scrollX - startX : w.scrollX + Math.round((w.innerWidth - balloon.offsetWidth)/2) - startX;
-		}
-
-		balloon.style.webkitTransitionProperty = '-webkit-transform,opacity';
-
-		switch ( options.animationOut ) {
-			case 'drop':
-				if ( isIPad ) {
-					duration = '0.4s';
-					opacity = '0';
-					posY += 50;
-				} else {
-					duration = '0.6s';
-					posY += balloon.offsetHeight + options.bottomOffset + 50;
-				}
-				break;
-			case 'bubble':
-				if ( isIPad ) {
-					duration = '0.8s';
-					posY -= balloon.offsetHeight + options.bottomOffset + 50;
-				} else {
-					duration = '0.4s';
-					opacity = '0';
-					posY -= 50;
-				}
-				break;
-			default:
-				duration = '0.8s';
-				opacity = '0';
-		}
-
-		balloon.addEventListener('webkitTransitionEnd', transitionEnd, false);
-		balloon.style.opacity = opacity;
-		balloon.style.webkitTransitionDuration = duration;
-		balloon.style.webkitTransform = 'translate3d(' + posX + 'px,' + posY + 'px,0)';
-	}
-
-
-	function clicked () {
-		w.sessionStorage.setItem('addToHomeSession', '1');
-		isSessionActive = true;
-		close();
-	}
-
-	function transitionEnd () {
-		balloon.removeEventListener('webkitTransitionEnd', transitionEnd, false);
-
-		balloon.style.webkitTransitionProperty = '-webkit-transform';
-		balloon.style.webkitTransitionDuration = '0.2s';
-
-		// We reached the end!
-		if ( !closeTimeout ) {
-			balloon.parentNode.removeChild(balloon);
-			balloon = null;
-			return;
-		}
-
-		// On iOS 4 we start checking the element position
-		if ( OSVersion < 5 && closeTimeout ) positionInterval = setInterval(setPosition, options.iterations);
-	}
-
-	function setPosition () {
-		var matrix = new WebKitCSSMatrix(w.getComputedStyle(balloon, null).webkitTransform),
-			posY = isIPad ? w.scrollY - startY : w.scrollY + w.innerHeight - startY,
-			posX = isIPad ? w.scrollX - startX : w.scrollX + Math.round((w.innerWidth - balloon.offsetWidth) / 2) - startX;
-
-		// Screen didn't move
-		if ( posY == matrix.m42 && posX == matrix.m41 ) return;
-
-		balloon.style.webkitTransform = 'translate3d(' + posX + 'px,' + posY + 'px,0)';
-	}
-
-	// Clear local and session storages (this is useful primarily in development)
-	function reset () {
-		w.localStorage.removeItem('addToHome');
-		w.sessionStorage.removeItem('addToHomeSession');
-	}
-
-	function orientationCheck () {
-		balloon.style.marginLeft = -Math.round(balloon.offsetWidth / 2) - ( w.orientation%180 && OSVersion >= 6 ? 40 : 0 ) + 'px';
-	}
-
-	// Bootstrap!
-	init();
-
-	return {
-		show: manualShow,
-		close: close,
-		reset: reset
-	};
-})(window);
-
-//     Zepto.js
-//     (c) 2010-2014 Thomas Fuchs
-//     Zepto.js may be freely distributed under the MIT license.
-
-;(function($, undefined){
-  var prefix = '', eventPrefix, endEventName, endAnimationName,
-    vendors = { Webkit: 'webkit', Moz: '', O: 'o' },
-    document = window.document, testEl = document.createElement('div'),
-    supportedTransforms = /^((translate|rotate|scale)(X|Y|Z|3d)?|matrix(3d)?|perspective|skew(X|Y)?)$/i,
-    transform,
-    transitionProperty, transitionDuration, transitionTiming, transitionDelay,
-    animationName, animationDuration, animationTiming, animationDelay,
-    cssReset = {}
-
-  function dasherize(str) { return str.replace(/([a-z])([A-Z])/, '$1-$2').toLowerCase() }
-  function normalizeEvent(name) { return eventPrefix ? eventPrefix + name : name.toLowerCase() }
-
-  $.each(vendors, function(vendor, event){
-    if (testEl.style[vendor + 'TransitionProperty'] !== undefined) {
-      prefix = '-' + vendor.toLowerCase() + '-'
-      eventPrefix = event
-      return false
-    }
-  })
-
-  transform = prefix + 'transform'
-  cssReset[transitionProperty = prefix + 'transition-property'] =
-  cssReset[transitionDuration = prefix + 'transition-duration'] =
-  cssReset[transitionDelay    = prefix + 'transition-delay'] =
-  cssReset[transitionTiming   = prefix + 'transition-timing-function'] =
-  cssReset[animationName      = prefix + 'animation-name'] =
-  cssReset[animationDuration  = prefix + 'animation-duration'] =
-  cssReset[animationDelay     = prefix + 'animation-delay'] =
-  cssReset[animationTiming    = prefix + 'animation-timing-function'] = ''
-
-  $.fx = {
-    off: (eventPrefix === undefined && testEl.style.transitionProperty === undefined),
-    speeds: { _default: 400, fast: 200, slow: 600 },
-    cssPrefix: prefix,
-    transitionEnd: normalizeEvent('TransitionEnd'),
-    animationEnd: normalizeEvent('AnimationEnd')
-  }
-
-  $.fn.animate = function(properties, duration, ease, callback, delay){
-    if ($.isFunction(duration))
-      callback = duration, ease = undefined, duration = undefined
-    if ($.isFunction(ease))
-      callback = ease, ease = undefined
-    if ($.isPlainObject(duration))
-      ease = duration.easing, callback = duration.complete, delay = duration.delay, duration = duration.duration
-    if (duration) duration = (typeof duration == 'number' ? duration :
-                    ($.fx.speeds[duration] || $.fx.speeds._default)) / 1000
-    if (delay) delay = parseFloat(delay) / 1000
-    return this.anim(properties, duration, ease, callback, delay)
-  }
-
-  $.fn.anim = function(properties, duration, ease, callback, delay){
-    var key, cssValues = {}, cssProperties, transforms = '',
-        that = this, wrappedCallback, endEvent = $.fx.transitionEnd,
-        fired = false
-
-    if (duration === undefined) duration = $.fx.speeds._default / 1000
-    if (delay === undefined) delay = 0
-    if ($.fx.off) duration = 0
-
-    if (typeof properties == 'string') {
-      // keyframe animation
-      cssValues[animationName] = properties
-      cssValues[animationDuration] = duration + 's'
-      cssValues[animationDelay] = delay + 's'
-      cssValues[animationTiming] = (ease || 'linear')
-      endEvent = $.fx.animationEnd
-    } else {
-      cssProperties = []
-      // CSS transitions
-      for (key in properties)
-        if (supportedTransforms.test(key)) transforms += key + '(' + properties[key] + ') '
-        else cssValues[key] = properties[key], cssProperties.push(dasherize(key))
-
-      if (transforms) cssValues[transform] = transforms, cssProperties.push(transform)
-      if (duration > 0 && typeof properties === 'object') {
-        cssValues[transitionProperty] = cssProperties.join(', ')
-        cssValues[transitionDuration] = duration + 's'
-        cssValues[transitionDelay] = delay + 's'
-        cssValues[transitionTiming] = (ease || 'linear')
-      }
-    }
-
-    wrappedCallback = function(event){
-      if (typeof event !== 'undefined') {
-        if (event.target !== event.currentTarget) return // makes sure the event didn't bubble from "below"
-        $(event.target).unbind(endEvent, wrappedCallback)
-      } else
-        $(this).unbind(endEvent, wrappedCallback) // triggered by setTimeout
-
-      fired = true
-      $(this).css(cssReset)
-      callback && callback.call(this)
-    }
-    if (duration > 0){
-      this.bind(endEvent, wrappedCallback)
-      // transitionEnd is not always firing on older Android phones
-      // so make sure it gets fired
-      setTimeout(function(){
-        if (fired) return
-        wrappedCallback.call(that)
-      }, (duration * 1000) + 25)
-    }
-
-    // trigger page reflow so new elements can animate
-    this.size() && this.get(0).clientLeft
-
-    this.css(cssValues)
-
-    if (duration <= 0) setTimeout(function() {
-      that.each(function(){ wrappedCallback.call(this) })
-    }, 0)
-
-    return this
-  }
-
-  testEl = null
-})(Zepto);
-
-//     Zepto.js
-//     (c) 2010-2014 Thomas Fuchs
-//     Zepto.js may be freely distributed under the MIT license.
-
-;(function($, undefined){
-  var document = window.document, docElem = document.documentElement,
-    origShow = $.fn.show, origHide = $.fn.hide, origToggle = $.fn.toggle
-
-  function anim(el, speed, opacity, scale, callback) {
-    if (typeof speed == 'function' && !callback) callback = speed, speed = undefined
-    var props = { opacity: opacity }
-    if (scale) {
-      props.scale = scale
-      el.css($.fx.cssPrefix + 'transform-origin', '0 0')
-    }
-    return el.animate(props, speed, null, callback)
-  }
-
-  function hide(el, speed, scale, callback) {
-    return anim(el, speed, 0, scale, function(){
-      origHide.call($(this))
-      callback && callback.call(this)
-    })
-  }
-
-  $.fn.show = function(speed, callback) {
-    origShow.call(this)
-    if (speed === undefined) speed = 0
-    else this.css('opacity', 0)
-    return anim(this, speed, 1, '1,1', callback)
-  }
-
-  $.fn.hide = function(speed, callback) {
-    if (speed === undefined) return origHide.call(this)
-    else return hide(this, speed, '0,0', callback)
-  }
-
-  $.fn.toggle = function(speed, callback) {
-    if (speed === undefined || typeof speed == 'boolean')
-      return origToggle.call(this, speed)
-    else return this.each(function(){
-      var el = $(this)
-      el[el.css('display') == 'none' ? 'show' : 'hide'](speed, callback)
-    })
-  }
-
-  $.fn.fadeTo = function(speed, opacity, callback) {
-    return anim(this, speed, opacity, null, callback)
-  }
-
-  $.fn.fadeIn = function(speed, callback) {
-    var target = this.css('opacity')
-    if (target > 0) this.css('opacity', 0)
-    else target = 1
-    return origShow.call(this).fadeTo(speed, target, callback)
-  }
-
-  $.fn.fadeOut = function(speed, callback) {
-    return hide(this, speed, null, callback)
-  }
-
-  $.fn.fadeToggle = function(speed, callback) {
-    return this.each(function(){
-      var el = $(this)
-      el[
-        (el.css('opacity') == 0 || el.css('display') == 'none') ? 'fadeIn' : 'fadeOut'
-      ](speed, callback)
-    })
-  }
-
 })(Zepto)
