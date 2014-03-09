@@ -2,7 +2,7 @@
 
 (defvar local-file #p"./data/aeneid.csv")
 
-(defun refresh-db (file)
+(defun refresh-db (file &optional (parse-only nil))
   ;; Get rid of the old data
   (with-connection (db-params)
     (execute (:delete-from 'syllable))
@@ -17,7 +17,8 @@
 	   (declare (ignore junk-1 junk-2))
 	   (process-line (pre-process-text-line text-line)
 			 (pre-process-syllable-line syllable-line)
-			 (pre-process-length-line length-line))))))
+			 (pre-process-length-line length-line)
+			 parse-only)))))
 
 (defun process-line (text syllables lengths &optional (parse-only nil))
   (let ((line (line-create :text (cadr text) :numbr (car text))))
