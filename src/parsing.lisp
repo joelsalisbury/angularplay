@@ -19,26 +19,29 @@
 			 (pre-process-syllable-line syllable-line)
 			 (pre-process-length-line length-line))))))
 
-(defun process-line (text syllables lengths)
+(defun process-line (text syllables lengths &optional (parse-only nil))
   (let ((line (line-create :text (cadr text) :numbr (car text))))
-    (process-syllables (line-id line) (coerce (cadr text) 'list) syllables lengths 0 0)))
+    (process-syllables (line-id line) (coerce (cadr text) 'list) syllables lengths 0 0 parse-only)))
 
-(defun process-syllables (line-id text syllables lengths pos index)
-  (let ((sylb (coerce (car syllables) 'list)))
+(defun process-syllables (line-id text syllables lengths pos index &optional (parse-only nil))
+  (let* ((trimmed-sylb (string-trim " " (car syllables)))
+	 (sylb (coerce trimmed-sylb 'list)))
     (multiple-value-bind (start len) (get-syllable-range text sylb index)
-      (syllable-create :line-id line-id
-		       :position pos
-		       :start start
-		       :char-cnt len
-		       :length (car lengths)
-		       :text (car syllables))
+      (if (not parse-only)
+	  (syllable-create :line-id line-id
+			   :position pos
+			   :start start
+			   :char-cnt len
+			   :length (car lengths)
+			   :text trimmed-sylb))
       (when (cdr syllables)
 	(process-syllables line-id
 			   (nthcdr (+ (- start index) len) text)
 			   (cdr syllables) 
 			   (cdr lengths)
 			   (1+ pos)
-			   (+ start len))))))
+			   (+ start len)
+			   parse-only)))))
     
 (defun get-syllable-range (text sylb &optional (start 0))
   (multiple-value-bind (fresh-text offset) (eat-space text)
@@ -109,9 +112,10 @@
   (let ((lengths (cdr (split-string line #\#))))
     (loop for length in lengths
        while (not (equal length "")) collect
-	 (cond 
-	   ((equal length "u") 0)
-	   ((equal length "-") 1)
-	   ((or (equal length "x")
-		(equal length "X")) 2)))))
+	 (let ((len (string-trim " " length)))
+	   (cond 
+	     ((equal len "u") 0)
+	     ((equal len "-") 1)
+	     ((or (equal len "x")
+		  (equal len "X")) 2))))))
 
