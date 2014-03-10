@@ -237,7 +237,11 @@ text-align: center;
  color:#2ecc71;	
 }
 
-.sylspan .correctanswer{
+.syl.highlight-right .correctanswer, .syl.highlight-wrong .correctanswer{
+	display:inline;
+}
+
+.syl .correctanswer{
  position:absolute;
  top:15px;
  width:100%;
@@ -245,13 +249,13 @@ text-align: center;
  display:none; 
 }
 
-.sylspan .correctanswer.short{
- background:url(../img/short.png?v03-01-2014) no-repeat center center;
+.syl .correctanswer.syllableuquant{
+ background:url(../img/short-purple.png?v03-01-2014) no-repeat center center;
  background-size:25px;	
 }
 
-.sylspan .correctanswer.long{
- background:url(../img/long.png?v03-01-2014) no-repeat center center;
+.syl .correctanswer.syllable-quant{
+ background:url(../img/long-purple.png?v03-01-2014) no-repeat center center;
  background-size:25px;	
 }
 

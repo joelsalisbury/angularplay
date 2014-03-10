@@ -3,7 +3,7 @@
                 <div id="lineCntrl" ng-controller="lineCntrl" ng-init="init()">
 
                     <div id="lineWrap">
-                        <h4 id="currentLine"><span id="syl{{syllable.id}}" class="syl {{syllable.highlight}} {{syllable.answer}}" ng-repeat= "syllable in renderedSyllables">{{syllable.text}}</span></h4>
+                        <h4 id="currentLine"><span id="syl{{syllable.id}}" class="syl {{syllable.highlight}} {{syllable.answer}}" ng-repeat= "syllable in renderedSyllables"><span class="correctanswer syllable{{syllable.quantity}}quant"></span>{{syllable.text}}</span></h4>
 
                         <div class="{{hideControls}}" id="controls">
                             <a class="long" ng-click="evaluateResponse('-')">long</a>                    
