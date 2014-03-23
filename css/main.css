@@ -221,12 +221,11 @@ text-align: center;
 .syl{
  padding-top:35px;	
  position:relative;
-   -o-transition:.25s;
-  -ms-transition:.25s;
-  -moz-transition:.25s;
-  -webkit-transition:.25s;
-  /* ...and now for the proper property */
-  transition:.25s;
+   -o-transition:.5s;
+  -ms-transition:.5s;
+  -moz-transition:.5s;
+  -webkit-transition:.5s;
+  transition:.5s;
 }
 
 .highlight-wrong{
@@ -308,36 +307,6 @@ text-align: center;
 	padding:0px;
 	width:125px;
 }
-
-.show-setup {
-  -webkit-transition: 1s linear all; /* Safari/Chrome */
-  -moz-transition: 1s linear all; /* Firefox */
-  -ms-transition: 1s linear all; /* IE10 */
-  -o-transition: 1s linear all; /* Opera */
-  transition: 1s linear all; /* Future Browsers */
- 
-  /* The animation preparation code */
-  opacity: 0;
-}
- 
-/*
- Keep in mind that you want to combine both CSS
- classes together to avoid any CSS-specificity
- conflicts
-*/
-.show-setup.show-start {
-  /* The animation code itself */
-  opacity: 1;
-}
-
-
-
-
-
-
-
-
-
 
 
 /**
