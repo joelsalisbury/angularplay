@@ -1,8 +1,19 @@
+<div id="homeCntrl" ng-controller="homeCntrl" ng-init="init()">
+    <img src="img/logo.png?v2"/>      
 
+    <div id="controls">
+        <a ng-click="setMode('marathon')" href="#game" class="goplay">
+        	<img style="margin-top:-3px; margin-right:5px; width:32px;" src="img/run.png">Marathon Mode
+    	</a>   
+        <a ng-click="setMode('timed')" href="#game" class="goplay">
+        	<img style="margin-top:-3px; width:32px;" src="img/clock.png">
+        	Timed Mode
+    	</a>   
 
-    <div id="homeCntrl" ng-controller="homeCntrl" ng-init="init()">
-        <img src="img/logo.png?v2"/>      
-        <div id="controls">
-            <a href="#game" class="goplay">Marathon Mode</a>   
-        </div>     
+        <a href="#achievements" class="goplay">
+        	Achievements
+    	</a>   
+
     </div>
+
+</div>

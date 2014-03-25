@@ -1,19 +1,9 @@
-/**Zepto('#controls a').on('touchstart',
-    function(){
-        Zepto(this).addClass('tap')
-    }
-);
 
-Zepto('#controls a').on('touchend',
-    function(){
-        Zepto(this).removeClass('tap')
-    }
-); **/
+var mode;
 
-var scansionApp = angular.module('scansionApp', ['ngRoute', 'ngAnimate']).run(function() {
+var scansionApp = angular.module('scansionApp', ['ngRoute', 'ngAnimate', 'timer']).run(function() {
     FastClick.attach(document.body);
-  });
-
+});
 
 scansionApp.config(['$routeProvider',
   function($routeProvider) {
@@ -29,32 +19,36 @@ scansionApp.config(['$routeProvider',
       otherwise({
         redirectTo: '/home'
       });
-  }]);
+}]);
 
- scansionApp.controller('homeCntrl', function ($scope) {
-    
- });   
+scansionApp.controller('homeCntrl', function ($scope, $rootScope) {
+    $scope.setMode = function(mode){
+        $rootScope.mode = mode;
+    } 
+});   
  
-scansionApp.controller('lineCntrl', function ($scope, $http) {
-  $scope.currentLine = 0;
-  $scope.currentLineSyls = [];
-  $scope.multiplier = 1;
-  $scope.incrementer = 6;
-  $scope.activeStreak = 0;
+scansionApp.controller('lineCntrl', function ($scope, $http, $rootScope) {
+    $scope.currentLine = 0;
+    $scope.currentLineSyls = [];
+    $scope.multiplier = 1;
+    $scope.incrementer = 6;
+    $scope.activeStreak = 0;
+    $scope.mode = $rootScope.mode;
 
-  $scope.currentScore = 0;
+    if($scope.mode == "timed"){
+        $scope.timer = 300;
+    }
 
-  $scope.currentSyl = 0;
+    $scope.currentScore = 0;
 
+    $scope.currentSyl = 0;
 
     $scope.init = function(){
-
-         $http.get('data/aeneid.json').success(function(data) {
+        $http.get('data/aeneid.json').success(function(data) {
             $scope.book = data;
             $scope.doRenderedSyllables();
             $scope.highlightSyl(0);
         });
-
     }
 
     $scope.doRenderedSyllables = function(){
@@ -151,20 +145,22 @@ scansionApp.controller('lineCntrl', function ($scope, $http) {
 
     $scope.evaluateStreak = function(){
         console.log("activeStreak:"+ $scope.activeStreak);
+
         //1-9: 6pts each (multiplier is 1)
         if(($scope.activeStreak >= 0) && ($scope.activeStreak < 10)){
             console.log('multiplier is 1!');
             $scope.multiplier = 1;
         }
+
         //10-19: 18pts each (multiplier is 3)
         if($scope.activeStreak > 9 && $scope.activeStreak < 20){
             console.log('multiplier increased to 3!');
             $scope.multiplier = 3;
-        }        
+        }
+
         //20-29: 24pts each (multiplier is 4)
         if($scope.activeStreak > 19 && $scope.activeStreak < 30){
             $scope.multiplier = 4;
         }  
-
     }
 });
