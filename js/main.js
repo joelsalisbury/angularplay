@@ -25,6 +25,8 @@ scansionApp.controller('homeCntrl', function ($scope, $rootScope) {
     $scope.setMode = function(mode){
         $rootScope.mode = mode;
     } 
+
+    $rootScope.source = 'data/aeneid.json';
 });   
  
 scansionApp.controller('lineCntrl', function ($scope, $http, $rootScope) {
@@ -36,7 +38,9 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $rootScope) {
     $scope.mode = $rootScope.mode;
 
     if($scope.mode == "timed"){
-        $scope.timer = 300;
+        $scope.timer = {};
+        $scope.timer.time = 300;
+        $scope.timer.shown = true;
     }
 
     $scope.currentScore = 0;
@@ -44,7 +48,8 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $rootScope) {
     $scope.currentSyl = 0;
 
     $scope.init = function(){
-        $http.get('data/aeneid.json').success(function(data) {
+        $scope.source = $rootScope.source;
+        $http.get($scope.source).success(function(data) {
             $scope.book = data;
             $scope.doRenderedSyllables();
             $scope.highlightSyl(0);
@@ -116,7 +121,6 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $rootScope) {
             $scope.renderedSyllables[i].highlight = "highlight-current";
         else{
             $scope.highlightNextSyl();
-
         }
     }
 

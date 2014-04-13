@@ -11,9 +11,10 @@
     </div>  
 
     <div class="clearfix" id= "currentScore">
-        <!--<timer interval="1000" countdown="300">{{minutes}}:{{seconds}}</timer>-->
 
         <h3>Streak: {{activeStreak}} <span class='multiplier'>{{multiplier}}X</span> <span style="margin-left:25px;font-size:14px;" id="mode"></span></h3>
+                <span id="timer" class="shown-{{timer.shown}}">5:00</span>
+
         <h1>Score: {{currentScore}} </h1>
     </div>                                   
 </div>

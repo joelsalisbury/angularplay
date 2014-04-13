@@ -170,10 +170,11 @@ text-align: center;
  cursor:pointer;
 
  -moz-user-select: none; 
-    -khtml-user-select: none; 
-    -webkit-user-select: none; 
-    -o-user-select: none; 
-    display:inline-block;
+ -khtml-user-select: none; 
+ -webkit-user-select: none; 
+ -o-user-select: none; 
+ display:inline-block;
+ margin-bottom:10px; 
 }
 
 #controls a.tap{
@@ -300,12 +301,25 @@ text-align: center;
 	display: block;
 }
 
+img{
+	max-width: 100%;
+}
 
 #currentScore h1{
 	float:right;
 	font-size:22px;
 	padding:0px;
 	width:125px;
+}
+
+#timer{
+	display:none;
+	margin-right:10px;
+}
+
+#timer.shown-true{
+	display:inline-block;
+	margin-top:15px;
 }
 
 
