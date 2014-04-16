@@ -1,7 +1,6 @@
-
 var mode;
 
-var scansionApp = angular.module('scansionApp', ['ngRoute', 'ngAnimate', 'timer']).run(function() {
+var scansionApp = angular.module('scansionApp', ['ngRoute', 'ui.bootstrap', 'ngAnimate', 'timer']).run(function() {
     FastClick.attach(document.body);
 });
 
@@ -21,15 +20,27 @@ scansionApp.config(['$routeProvider',
       });
 }]);
 
+
 scansionApp.controller('homeCntrl', function ($scope, $rootScope) {
-    $scope.setMode = function(mode){
+    $rootScope.setMode = function(mode){
         $rootScope.mode = mode;
+        console.log(mode + " mode set!");
     } 
 
-    $rootScope.source = 'data/aeneid.json';
+    $rootScope.setTime = function(time){
+        $rootScope.time = time;
+        console.log(time + " time set!");
+    }
+
+    $rootScope.setBook = function(book){
+        $rootScope.source = book;
+        console.log(book + " book set!");
+    }
+
+    $rootScope.setBook('data/aeneid.json');
 });   
  
-scansionApp.controller('lineCntrl', function ($scope, $http, $rootScope) {
+scansionApp.controller('lineCntrl', function ($scope, $http, $timeout, $rootScope) {
     $scope.currentLine = 0;
     $scope.currentLineSyls = [];
     $scope.multiplier = 1;
@@ -37,11 +48,7 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $rootScope) {
     $scope.activeStreak = 0;
     $scope.mode = $rootScope.mode;
 
-    if($scope.mode == "timed"){
-        $scope.timer = {};
-        $scope.timer.time = 300;
-        $scope.timer.shown = true;
-    }
+   
 
     $scope.currentScore = 0;
 
@@ -49,6 +56,14 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $rootScope) {
 
     $scope.init = function(){
         $scope.source = $rootScope.source;
+
+ if($scope.mode == "timed"){
+        $scope.timer = {};
+        $scope.timer.shown = true;
+        $scope.timer.time = $rootScope.time;
+
+        $timeout(function(){$scope.$broadcast('timer-add-cd-seconds', $scope.timer.time)}, 5);
+    }
         $http.get($scope.source).success(function(data) {
             $scope.book = data;
             $scope.doRenderedSyllables();
@@ -167,4 +182,40 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $rootScope) {
             $scope.multiplier = 4;
         }  
     }
+});
+
+
+
+// Please note that $modalInstance represents a modal window (instance) dependency.
+// It is not the same as the $modal service used above.
+
+scansionApp.controller('ModalInstanceCtrl',function ($scope, $modalInstance, $rootScope) {
+
+
+  $scope.setMode = function(mode){
+    $rootScope.setMode(mode);
+  }
+
+  $scope.setTime = function(time){
+    $rootScope.setTime(time);
+  }
+
+  $scope.ok = function () {
+    $modalInstance.close();
+  };
+
+  $scope.cancel = function () {
+    $modalInstance.dismiss('cancel');
+  };
+});
+
+scansionApp.controller('NewGameSetupCtrl', function ($scope, $modal, $log, $rootScope) {
+
+  $scope.open = function (templateurl) {
+
+    var modalInstance = $modal.open({
+      templateUrl: templateurl,
+      controller: 'ModalInstanceCtrl'
+    });
+  };
 });

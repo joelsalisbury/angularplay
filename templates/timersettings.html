@@ -1,0 +1,18 @@
+        <div class="modal-header">
+
+            <h3>Timed Mode</h3>
+        </div>
+        <div class="modal-body">
+
+
+                <button type="button" ng-click="setTime(120)" class="btn btn-primary">2 minutes</button>
+                <button type="button" ng-click="setTime(300)" class="btn btn-primary">5 minutes</button>
+                <button type="button" ng-click="setTime(600)" class="btn btn-primary">10 minutes</button>
+
+    
+
+        </div>
+        <div class="modal-footer">
+            <button style="float:left;" class="btn" ng-click="cancel()">Cancel</button>
+            <a class="btn primary" href="#game" ng-click="setMode('timed'); cancel();">Play</a>
+        </div>

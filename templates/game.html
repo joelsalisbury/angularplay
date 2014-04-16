@@ -1,7 +1,7 @@
 <div id="lineCntrl" ng-controller="lineCntrl" ng-init="init()">
     <div id="lineWrap">
         <h4 id="currentLine"><span ng-repeat= "syllable in renderedSyllables"><span id="syl{{syllable.id}}" class="syl {{syllable.highlight}} {{syllable.answer}}"><span class="correctanswer syllable{{syllable.quantity}}quant"></span>{{syllable.text}}</span></span></h4>
-
+ 
         <div class="{{hideControls}}" id="controls">
             <a class="long" ng-click="evaluateResponse('-')">long</a>                    
             <a class="short" ng-click="evaluateResponse('u')">short</a>
@@ -12,9 +12,11 @@
 
     <div class="clearfix" id= "currentScore">
 
-        <h3>Streak: {{activeStreak}} <span class='multiplier'>{{multiplier}}X</span> <span style="margin-left:25px;font-size:14px;" id="mode"></span></h3>
-                <span id="timer" class="shown-{{timer.shown}}">5:00</span>
+        <h3>Streak: {{activeStreak}} 
+        <span class='multiplier'>{{multiplier}}X</span> 
 
+        <span style="margin-left:25px;font-size:14px;" id="mode"></span></h3>
+        <span id="timer" class="shown-{{timer.shown}}"><timer interval="1000" countdown="1">{{minutes}}m {{seconds}}s</timer></span>
         <h1>Score: {{currentScore}} </h1>
     </div>                                   
 </div>

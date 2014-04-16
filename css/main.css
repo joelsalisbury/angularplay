@@ -153,7 +153,7 @@ text-align: center;
 #controls{
 	text-align: center;
 	position: relative;
-	z-index: 9999;
+	z-index: 3;
 }
 
 #controls a{
@@ -315,6 +315,7 @@ img{
 #timer{
 	display:none;
 	margin-right:10px;
+	font-size:14pt;
 }
 
 #timer.shown-true{
@@ -322,6 +323,60 @@ img{
 	margin-top:15px;
 }
 
+.modal{
+	-webkit-filter:none!important;
+}
+
+
+.modal-header{
+	background-color:#f4f4f4;
+	height:44px;
+	padding:0px;
+	border-radius: 0px;
+}
+
+.modal-content{
+	border-radius: 0px;
+}
+
+.modal-header h3{
+	color:#2c2c2c;
+	margin:0px;
+	padding:0px;
+	font-size:16px;
+	line-height:44px;
+}
+
+.modal-content h4{
+	color:#333;
+	text-align: left;
+}
+
+.modal-content .btn{
+	border-radius: 0px;
+	background-color:#fff;
+	color:#2087fc;
+}
+
+.modal-content .btn.primary{
+	color:#fff;
+	background-color:#46ca5e;
+}
+
+.modal-content .btn-group{
+	text-align:left;
+	display: block;
+}
+
+.modal-footer{
+	height:44px;
+	padding-top:5px;
+	padding-bottom: 5px;
+}
+
+.modal-open .goplay, .modal-open #logo{
+-webkit-filter: blur(8px)
+}
 
 /**
  *
