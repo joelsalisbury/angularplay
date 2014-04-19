@@ -171,16 +171,21 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $timeout, $rootScop
             $scope.multiplier = 1;
         }
 
-        //10-19: 18pts each (multiplier is 3)
+        //10-19: 12pts each (multiplier is 2)
         if($scope.activeStreak > 9 && $scope.activeStreak < 20){
             console.log('multiplier increased to 3!');
-            $scope.multiplier = 3;
+            $scope.multiplier = 2;
         }
 
-        //20-29: 24pts each (multiplier is 4)
-        if($scope.activeStreak > 19 && $scope.activeStreak < 30){
-            $scope.multiplier = 4;
+        //20-29: 18pts each (multiplier is 3)
+        if($scope.activeStreak > 19 && $scope.activeStreak < 20){
+            $scope.multiplier = 3;
         }  
+        
+        //30-39: 24pts each (multiplier is 4)
+        if($scope.activeStreak > 29 && $scope.activeStreak < 40){
+            $scope.multiplier = 4;
+        }         
     }
 });
 
