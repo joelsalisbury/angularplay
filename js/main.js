@@ -22,6 +22,9 @@ scansionApp.config(['$routeProvider',
 
 
 scansionApp.controller('homeCntrl', function ($scope, $rootScope) {
+    //2 minutes by default
+    $rootScope.time = 120;
+
     $rootScope.setMode = function(mode){
         $rootScope.mode = mode;
         console.log(mode + " mode set!");
@@ -146,7 +149,12 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $timeout, $rootScop
     $scope.evaluateResponse = function(response){
         var correctResponse = $scope.renderedSyllables[$scope.currentSyl].quantity;
         var currentSylObj = $scope.renderedSyllables[$scope.currentSyl];
+
         if (correctResponse == response){
+
+            if($scope.activeStreak <= 0)
+                $scope.activeStreak = 0;
+
             isCorrect = true;
             currentSylObj.highlight = "highlight-right";
             $scope.activeStreak++;
@@ -154,7 +162,11 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $timeout, $rootScop
        }
         else{
             currentSylObj.highlight = "highlight-wrong";
-            $scope.activeStreak = 0;
+
+            if($scope.activeStreak  < 0)
+                $sscope.activeStreak--;
+            else
+                $scope.activeStreak = 0;
         }
         
         $scope.evaluateStreak();
@@ -163,25 +175,58 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $timeout, $rootScop
     }
 
     $scope.evaluateStreak = function(){
-        console.log("activeStreak:"+ $scope.activeStreak);
+            console.log("activeStreak:"+ $scope.activeStreak);
 
-        //1-9: 6pts each (multiplier is 1)
-        if(($scope.activeStreak >= 0) && ($scope.activeStreak < 10)){
-            console.log('multiplier is 1!');
-            $scope.multiplier = 1;
+            //1-9: 6pts each (multiplier is 1)
+            if(($scope.activeStreak >= 0) && ($scope.activeStreak < 10)){
+                console.log('multiplier is 1!');
+                $scope.multiplier = 1;
+            }
+
+            //10-19: 12pts each (multiplier is 2)
+            if($scope.activeStreak > 9 && $scope.activeStreak < 20){
+                console.log('multiplier increased to 2!');
+                $scope.multiplier = 2;
+            }
+
+            //20-29: 18pts each (multiplier is 3)
+            if($scope.activeStreak > 19 && $scope.activeStreak < 20){
+                console.log('multiplier increased to 3!');
+                $scope.multiplier = 3;
+            }  
+            
+            //30-39: 24pts each (multiplier is 4)
+            if($scope.activeStreak > 29 && $scope.activeStreak < 40){
+                console.log('multiplier increased to 4!');
+                $scope.multiplier = 4;
+            }  
+
+            if($scope.activeStreak == 50){
+                console.log('OMG50!');
+                $scope.doAchievement('50Straight');
+            }
+
+            if($scope.activeStreak == 100){
+                console.log('OMG100!');
+                $scope.doAchievement('100Straight');
+            }     
+
+            if($scope.activeStreak == 250){
+                console.log('OMG250!');
+                $scope.doAchievement('250Straight');
+            }   
+
+            if($scope.activeStreak == 500){
+                console.log('OMG500!');
+                $scope.doAchievement('500Straight');
+            } 
+
+            if($scope.activeStreak == 1000){
+                console.log('OMG1000!');
+                $scope.doAchievement('1000Straight');
+            }                                          
+
         }
-
-        //10-19: 18pts each (multiplier is 3)
-        if($scope.activeStreak > 9 && $scope.activeStreak < 20){
-            console.log('multiplier increased to 3!');
-            $scope.multiplier = 3;
-        }
-
-        //20-29: 24pts each (multiplier is 4)
-        if($scope.activeStreak > 19 && $scope.activeStreak < 30){
-            $scope.multiplier = 4;
-        }  
-    }
 });
 
 

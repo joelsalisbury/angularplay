@@ -4,12 +4,21 @@
         </div>
         <div class="modal-body">
 
+<div class="col-md-12">
+    <div class="switch-toggle switch-3 switch-ios">
+        <input id="timer2min" name="timesetting" type="radio" checked>
+        <label ng-click="setTime('120')" for="timer2min" onclick="">2 minutes</label>
 
-                <button type="button" ng-click="setTime(120)" class="btn btn-primary">2 minutes</button>
-                <button type="button" ng-click="setTime(300)" class="btn btn-primary">5 minutes</button>
-                <button type="button" ng-click="setTime(600)" class="btn btn-primary">10 minutes</button>
+        <input id="timer5min" name="timesetting" type="radio">
+        <label ng-click="setTime('300')" for="timer5min" onclick="">5 minutes</label>
 
-    
+        <input id="timer10min" name="timesetting" type="radio">
+        <label ng-click="setTime('600')"  for="timer10min" onclick="">10 minutes</label>
+
+        <a></a>
+    </div>
+
+</div>
 
         </div>
         <div class="modal-footer">

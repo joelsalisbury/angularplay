@@ -86,7 +86,7 @@ background:#ecf0f1;
 color:#fff;
 margin:0 auto;
 height:100%;
-font-family: -apple-system-font, "Helvetica Neue";
+font-family: -apple-system-font, "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
 font-weight: 100;
 text-align: center;
 }
@@ -375,8 +375,13 @@ img{
 }
 
 .modal-open .goplay, .modal-open #logo{
--webkit-filter: blur(8px)
+/**-webkit-filter: blur(8px)**/
 }
+
+a{
+    outline:0!important; /*removes the dotted border*/
+    outline-style:none!important;
+} 
 
 /**
  *
