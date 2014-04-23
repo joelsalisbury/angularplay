@@ -51,8 +51,6 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $timeout, $rootScop
     $scope.activeStreak = 0;
     $scope.mode = $rootScope.mode;
 
-   
-
     $scope.currentScore = 0;
 
     $scope.currentSyl = 0;
@@ -190,40 +188,40 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $timeout, $rootScop
             }
 
             //20-29: 18pts each (multiplier is 3)
-            if($scope.activeStreak > 19 && $scope.activeStreak < 20){
+            if($scope.activeStreak > 19 && $scope.activeStreak < 30){
                 console.log('multiplier increased to 3!');
                 $scope.multiplier = 3;
             }  
             
             //30-39: 24pts each (multiplier is 4)
-            if($scope.activeStreak > 29 && $scope.activeStreak < 40){
+            if($scope.activeStreak > 29){
                 console.log('multiplier increased to 4!');
                 $scope.multiplier = 4;
             }  
 
             if($scope.activeStreak == 50){
                 console.log('OMG50!');
-                $scope.doAchievement('50Straight');
+                $rootscope.reportAchievement('50Straight');
             }
 
             if($scope.activeStreak == 100){
                 console.log('OMG100!');
-                $scope.doAchievement('100Straight');
+                $rootscope.reportAchievement('100Straight');
             }     
 
             if($scope.activeStreak == 250){
                 console.log('OMG250!');
-                $scope.doAchievement('250Straight');
+                $rootscope.reportAchievement('250Straight');
             }   
 
             if($scope.activeStreak == 500){
                 console.log('OMG500!');
-                $scope.doAchievement('500Straight');
+                $rootscope.reportAchievement('500Straight');
             } 
 
             if($scope.activeStreak == 1000){
                 console.log('OMG1000!');
-                $scope.doAchievement('1000Straight');
+                $rootscope.reportAchievement('1000Straight');
             }                                          
 
         }
@@ -263,4 +261,58 @@ scansionApp.controller('NewGameSetupCtrl', function ($scope, $modal, $log, $root
       controller: 'ModalInstanceCtrl'
     });
   };
+});
+
+
+scansionApp.controller('AchievementsCtrl', function ($scope, $modal, $log, $rootScope) {
+
+  $scope.open = function (templateurl) {
+
+    var modalInstance = $modal.open({
+      templateUrl: templateurl,
+      controller: 'ModalInstanceCtrl'
+    });
+  };
+
+  $scope.fetchAchievements = function() {
+    var data = { };
+
+    gamecenter.reportAchievement(successCallback, failureCallback, data);
+
+    var successCallback = function(result) {
+        if (results) {
+            for (var i=0;i<results.length;i++) {
+                
+            }
+        }
+    }
+  }
+
+ $scope.submitScore = function(score) {
+    var data = {
+        score: score,
+        leaderboardId: "board1"
+    };
+    gamecenter.submitScore(successCallback, failureCallback, data);  
+  }
+ 
+ $scope.showLeaderboard = function(timeperiod) {
+
+  //The period options are "today", "week" or "all".
+
+    var data = {
+        period: timeperiod,
+        leaderboardId: "board1"
+    };
+    gamecenter.showLeaderboard(successCallback, failureCallback, data);
+ }
+
+
+ $scope.reportAchievement = function(achName) {
+    var data = {
+        achievementId: achName,
+        percent: "100"
+    };
+    gamecenter.reportAchievement(successCallback, failureCallback, data);    
+ }
 });

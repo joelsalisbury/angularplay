@@ -2,7 +2,7 @@
     <img id="logo" src="img/logo.png?v2"/>      
 
     <div id="controls" ng-controller="NewGameSetupCtrl">
-        <a href="#game" class="goplay">
+        <a ng-click="open('templates/marathonsettings.html')" class="goplay">
         	<img style="margin-top:-3px; margin-right:5px; width:32px;" src="img/run.png">Marathon
     	</a>   
         <a ng-click="open('templates/timersettings.html')" class="goplay">
@@ -10,7 +10,7 @@
         	Timed
     	</a>   
 
-        <a href="#achievements" class="goplay">
+        <a ng-click="open('templates/achievements.html')" href="#achievements" class="goplay">
         	<img style="margin-top:-3ps; width:32px;" src="img/star.svg">
             Achievements
     	</a>   
