@@ -40,16 +40,20 @@ scansionApp.controller('homeCntrl', function ($scope, $rootScope) {
         console.log(book + " book set!");
     }
 
+
     $rootScope.setBook('data/aeneid.json');
 });   
  
 scansionApp.controller('lineCntrl', function ($scope, $http, $timeout, $rootScope) {
     $scope.currentLine = 0;
+    
+    console.log(currentLine);
     $scope.currentLineSyls = [];
     $scope.multiplier = 1;
     $scope.incrementer = 6;
     $scope.activeStreak = 0;
     $scope.mode = $rootScope.mode;
+
 
     $scope.currentScore = 0;
 

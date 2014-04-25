@@ -177,6 +177,43 @@ text-align: center;
  margin-bottom:10px; 
 }
 
+.modal-body{
+	padding-top:5px;
+}
+
+.switch-ios.switch-toggle {
+ border-radius:5px;
+ border:2px solid #5c0bb3;	
+ clear:both;
+}
+
+.switch-ios.switch-toggle a{
+	background-color:#5c0bb3;
+	border-radius:5px;
+}
+
+.switch-ios.switch-toggle label {
+	color:#5c0bb3;
+}
+
+.switch-ios input + label{
+	transition:.5s;
+	color:#5c0bb3;
+	font-size:12px;
+	font-weight:200;
+    font-family: -apple-system-font, "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+}
+
+.switch-ios input:checked + label{
+	color:#fff;
+}
+
+.btn.purple{
+ background-color:#5c0bb3;
+ border:1px solid #e3e3e3;	
+ color:#fff;
+}
+
 #controls a.tap{
 	background-color:#9b59b6;
 }
