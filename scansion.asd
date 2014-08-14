@@ -1,17 +1,7 @@
-;;; Add the directories for our dependencies to ASDF.
-(push #p"./dep/dpc-cl/" asdf:*central-registry*)
-(push #p"./dep/web/" asdf:*central-registry*)
-(push #p"./dep/testing/" asdf:*central-registry*)
-
 (asdf:defsystem #:scansion
   :serial t
   :description "Serves up scansion data for latin texts."
-  :depends-on (#:hunchentoot
-	       #:cl-who
-	       #:postmodern
-	       #:dpc-cl
-	       #:web
-	       #:testing)
+  :depends-on (#:cl-ppcre #:nst #:cl-json)
   :components ((:file "package")
 	       (:module :src
 			:serial t      

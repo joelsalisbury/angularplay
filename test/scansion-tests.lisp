@@ -1,24 +1,46 @@
-(in-package :scansion)
+(in-package :cl-user)
+(defpackage :scansion.testing
+  (:use :cl)
+  (:import-from :scansion.utils
+		:equal-report)
+  (:import-from :scansion.parsing
+		:pre-process-length-line
+		:pre-process-syllable-line
+		:pre-process-text-line
+		:text-char-p
+		:eat-space
+		:match-text-sylb
+		:determine-syllable-length
+		:bad-syllable-handler
+		:get-syllable-range
+		:bad-syllable
+		:process-syllables)
+  (:import-from :scansion.model
+		:syllable
+		:syllable-position
+		:syllable-start
+		:syllable-char-cnt
+		:syllable-length
+		:syllable-text))
+(in-package :scansion.testing)
+  
 
-; refresh-db
-
-; process-line
-
-(defvar *syllables* ())
 (nst:def-test-group process-syllables-tests ()
-  (nst:def-criterion (:process-syllables (syllables) (line-id text sylbls lengths pos index))
-    (setf *syllables* ())
-    (with-replaced-function (make-dao (name &rest rest)
-				      (declare (ignore name))
-				      (push rest *syllables*))
-      (process-syllables line-id text sylbls lengths pos index))
-    (testing:equal-report syllables (nreverse *syllables*)))
+  (nst:def-criterion (:process-syllables (syllables) (text sylbls lengths pos index))
+    (equal-report syllables
+		  (mapcar (lambda (s)
+			    `(:POSITION ,(syllable-position s)
+			      :START ,(syllable-start s)
+			      :CHAR-CNT ,(syllable-char-cnt s)
+			      :LENGTH ,(syllable-length s)
+			      :TEXT ,(syllable-text s)))
+			  (process-syllables text sylbls lengths pos index))))
   (nst:def-test creates-syllables (:process-syllables
-		       ((:LINE-ID 1 :POSITION 0 :START 0
-				 :CHAR-CNT 2 :LENGTH 1 :TEXT "my")
-			(:LINE-ID 1 :POSITION 1 :START 3
-				 :CHAR-CNT 4 :LENGTH 2 :TEXT "text")))
-    1 '(#\m #\y #\Space #\t #\e #\x #\t) '("my" "text") '(1 2) 0 0))
+				   ((:POSITION 0 :START 0
+				     :CHAR-CNT 2 :LENGTH 1 :TEXT "my")
+				    (:POSITION 1 :START 3
+				     :CHAR-CNT 4 :LENGTH 2 :TEXT "text")))
+    '(#\m #\y #\Space #\t #\e #\x #\t) '("my" "text") '(1 2) 0 0))
 
 (nst:def-test-group get-syllable-range-tests ()
   (nst:def-test simple-range (:values (:equal 0) (:equal 2))
@@ -38,7 +60,7 @@
   (nst:def-criterion (:match-text-sylb (match txt-cnt syb-cnt) (text sylb))
     (multiple-value-bind (mtc txt syb)
 	(match-text-sylb text sylb)
-      (testing:equal-report (list mtc txt syb) (list match txt-cnt syb-cnt))))
+      (equal-report (list mtc txt syb) (list match txt-cnt syb-cnt))))
   (nst:def-test matches-same-char
       (:match-text-sylb t 1 1) '(#\A) '(#\A))
   (nst:def-test matches-up-low-char
@@ -68,26 +90,36 @@
   (nst:def-test t-for-number (:true) (text-char-p #\1))
   (nst:def-test false-for-punctuation (:not :true) (text-char-p #\.)))
 
-(nst:def-test-group pre-process-text-line-tests ()
+(nst:def-test-group pre-process-text-line-with-comma-tests ()
   (nst:def-criterion (:pre-process-text-line (expected) (raw))
-    (testing:equal-report expected (pre-process-text-line raw)))
+    (equal-report expected (pre-process-text-line raw)))
 
   (nst:def-test splits-line-to-identify-start-and-text
       (:pre-process-text-line (545 "nec pietate fuit, nec bello maior et armis."))
-    "Line:#545#Full Line:#nec pietate fuit, nec bello maior et armis.##############"))
+    "Line:,545,Full Line:,\"nec pietate fuit, nec bello maior et armis.\",,,,,,,,,,,,,,"))
+
+(nst:def-test-group pre-process-text-line-no-comma-tests ()
+  (nst:def-criterion (:pre-process-text-line (expected) (raw))
+    (equal-report expected (pre-process-text-line raw)))
+
+  (nst:def-test splits-line-to-identify-start-and-text
+      (:pre-process-text-line (545 "nec pietate fuit nec bello maior et armis."))
+    "Line:,545,Full Line:,nec pietate fuit nec bello maior et armis.,,,,,,,,,,,,,,"))
 
 (nst:def-test-group pre-process-syllable-line-tests ()
   (nst:def-criterion (:pre-process-syllable-line (expected) (raw))
-    (testing:equal-report expected (pre-process-syllable-line raw)))
+    (equal-report expected (pre-process-syllable-line raw)))
 
   (nst:def-test splits-line-and-identifies-syllables
       (:pre-process-syllable-line ("Rex" "er" "at" "Ae" "ne" "as" "nob" "is" "quo-i" "us" "ti" "or" "al" "ter"))
-    "#Rex#er#at#Ae#ne#as#nob#is#quo-i#us#ti#or#al#ter###"))
+    ",Rex,er,at,Ae,ne,as,nob,is,quo-i,us,ti,or,al,ter,,,"))
 
 (nst:def-test-group pre-process-length-line-tests ()
   (nst:def-criterion (:pre-process-length-line (expected) (raw))
-    (testing:equal-report expected (pre-process-length-line raw)))
+    (equal-report expected (pre-process-length-line raw)))
 
   (nst:def-test splits-line-and-identifies-lengths
       (:pre-process-length-line (1 0 0 1 1 1 1 1 1 1 0 0 1 2))
-    "Length:#-#u#u#-#-#-#-#-#-#-#u#u#-#X###"))
+    "Length:,-,u,u,-,-,-,-,-,-,-,u,u,-,X,,,"))
+
+
