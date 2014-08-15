@@ -20,6 +20,7 @@
 		(length-line (read-line in nil))
 		(junk-2 (read-line in nil)))
 	   (declare (ignore junk-1 junk-2))
+	   (print text-line)
 	   (process-line book
 			 (pre-process-text-line text-line)
 			 (pre-process-syllable-line syllable-line)
