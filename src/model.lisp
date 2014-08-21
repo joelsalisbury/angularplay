@@ -1,17 +1,26 @@
-(in-package :scansion)
+(in-package :cl-user)
+(defpackage :scansion.model
+  (:use :cl)
+  (:export :book :book-id :book-lines
+	   :line :line-id :line-index :line-text :line-numbr :line-syllables
+	   :syllable :syllable-position :syllable-start
+	   :syllable-char-cnt :syllable-length :syllable-text))
+(in-package :scansion.model)
 
-;;; Some configuration
-(setf web:*app-name* "SCANSION")
-(setf web:*local-database-url* "SCANSION_DB")
+(defclass book ()
+  ((id :initarg :id :accessor book-id)
+   (lines :initarg :lines :accessor book-lines)))
 
-(defmodel line
-    ((text :col-type (varchar 255) :initarg :text :accessor line-text)
-     (numbr :col-type int :initarg :numbr :accessor line-numbr)))
+(defclass line ()
+  ((id :initarg :id :accessor line-id)
+   (index :initarg :index :accessor line-index)
+   (text :initarg :text :accessor line-text)
+   (numbr :initarg :numbr :accessor line-numbr)
+   (syllables :initarg :syllables :accessor line-syllables)))
 
-(defmodel syllable
-    ((line-id :col-type int :initarg :line-id :accessor syllable-line-id)
-     (position :col-type int :initarg :position :accessor syllable-position)
-     (start :col-type int :initarg :start :accessor syllable-start)
-     (char-cnt :col-type int :initarg :char-cnt :accessor syllable-char-cnt)
-     (length :col-type int :initarg :length :accessor syllable-length)
-     (text :col-type (varchar 10) :initarg :text :accessor syllable-text)))
+(defclass syllable ()
+  ((position :initarg :position :accessor syllable-position)
+   (start :initarg :start :accessor syllable-start)
+   (char-cnt :initarg :char-cnt :accessor syllable-char-cnt)
+   (length :initarg :length :accessor syllable-length)
+   (text :initarg :text :accessor syllable-text)))
