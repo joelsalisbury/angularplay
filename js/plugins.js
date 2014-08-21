@@ -964,12 +964,255 @@ if (typeof define !== 'undefined' && define.amd) {
   })
 })(Zepto);
 
+var timerModule = angular.module('timer', [])
+  .directive('timer', ['$compile', function ($compile) {
+    return  {
+      restrict: 'EAC',
+      replace: false,
+      scope: {
+        interval: '=interval',
+        startTimeAttr: '=startTime',
+        endTimeAttr: '=endTime',
+        countdownattr: '=countdown',
+        autoStart: '&autoStart',
+        maxTimeUnit: '='
+      },
+      controller: ['$scope', '$element', '$attrs', '$timeout', function ($scope, $element, $attrs, $timeout) {
 
-/**
- * angular-timer - v1.1.0 - 2014-04-14 9:36 AM
- * https://github.com/siddii/angular-timer
- *
- * Copyright (c) 2014 Siddique Hameed
- * Licensed MIT <https://github.com/siddii/angular-timer/blob/master/LICENSE.txt>
- */
-angular.module("timer",[]).directive("timer",["$compile",function(a){return{restrict:"EAC",replace:!1,scope:{interval:"=interval",startTimeAttr:"=startTime",endTimeAttr:"=endTime",countdownattr:"=countdown",autoStart:"&autoStart"},controller:["$scope","$element","$attrs","$timeout",function(b,c,d,e){function f(){b.timeoutId&&clearTimeout(b.timeoutId)}function g(){b.seconds=Math.floor(b.millis/1e3%60),b.secondsS=1==b.seconds?"":"s",b.minutes=Math.floor(b.millis/6e4%60),b.minutesS=1==b.minutes?"":"s",b.hours=Math.floor(b.millis/36e5%24),b.hoursS=1==b.hours?"":"s",b.days=Math.floor(b.millis/36e5/24),b.daysS=1==b.days?"":"s",b.sseconds=b.seconds<10?"0"+b.seconds:b.seconds,b.mminutes=b.minutes<10?"0"+b.minutes:b.minutes,b.hhours=b.hours<10?"0"+b.hours:b.hours,b.ddays=b.days<10?"0"+b.days:b.days}"function"!=typeof String.prototype.trim&&(String.prototype.trim=function(){return this.replace(/^\s+|\s+$/g,"")}),b.autoStart=d.autoStart||d.autostart,c.append(0===c.html().trim().length?a("<span>{{millis}}</span>")(b):a(c.contents())(b)),b.startTime=null,b.endTime=null,b.timeoutId=null,b.countdown=b.countdownattr&&parseInt(b.countdownattr,10)>=0?parseInt(b.countdownattr,10):void 0,b.isRunning=!1,b.$on("timer-start",function(){b.start()}),b.$on("timer-resume",function(){b.resume()}),b.$on("timer-stop",function(){b.stop()}),b.$on("timer-clear",function(){b.clear()}),b.$on("timer-set-countdown",function(a,c){b.countdown=c}),b.start=c[0].start=function(){b.startTime=b.startTimeAttr?new Date(b.startTimeAttr):new Date,b.endTime=b.endTimeAttr?new Date(b.endTimeAttr):null,b.countdown||(b.countdown=b.countdownattr&&parseInt(b.countdownattr,10)>0?parseInt(b.countdownattr,10):void 0),f(),h(),b.isRunning=!0},b.resume=c[0].resume=function(){f(),b.countdownattr&&(b.countdown+=1),b.startTime=new Date-(b.stoppedTime-b.startTime),h(),b.isRunning=!0},b.stop=b.pause=c[0].stop=c[0].pause=function(){b.clear(),b.$emit("timer-stopped",{millis:b.millis,seconds:b.seconds,minutes:b.minutes,hours:b.hours,days:b.days})},b.clear=c[0].clear=function(){b.stoppedTime=new Date,f(),b.timeoutId=null,b.isRunning=!1},c.bind("$destroy",function(){f(),b.isRunning=!1}),b.countdownattr?(b.millis=1e3*b.countdownattr,b.addCDSeconds=c[0].addCDSeconds=function(a){b.countdown+=a,b.$digest(),b.isRunning||b.start()},b.$on("timer-add-cd-seconds",function(a,c){e(function(){b.addCDSeconds(c)})})):b.millis=0,g();var h=function(){b.millis=new Date-b.startTime;var a=b.millis%1e3;return b.endTimeAttr&&(b.millis=b.endTime-new Date,a=b.interval-b.millis%1e3),b.countdownattr&&(b.millis=1e3*b.countdown),b.millis<0?(b.stop(),b.millis=0,void g()):(g(),b.timeoutId=setTimeout(function(){h(),b.$digest()},b.interval-a),b.$emit("timer-tick",{timeoutId:b.timeoutId,millis:b.millis}),void(b.countdown>0?b.countdown--:b.countdown<=0&&b.stop()))};(void 0===b.autoStart||b.autoStart===!0)&&b.start()}]}}]);
+        // Checking for trim function since IE8 doesn't have it
+        // If not a function, create tirm with RegEx to mimic native trim
+        if (typeof String.prototype.trim !== 'function') {
+          String.prototype.trim = function () {
+            return this.replace(/^\s+|\s+$/g, '');
+          };
+        }
+
+        //angular 1.2 doesn't support attributes ending in "-start", so we're
+        //supporting both "autostart" and "auto-start" as a solution for
+        //backward and forward compatibility.
+        $scope.autoStart = $attrs.autoStart || $attrs.autostart;
+
+        if ($element.html().trim().length === 0) {
+          $element.append($compile('<span>{{millis}}</span>')($scope));
+        } else {
+          $element.append($compile($element.contents())($scope));
+        }
+
+        $scope.startTime = null;
+        $scope.endTime = null;
+        $scope.timeoutId = null;
+        $scope.countdown = $scope.countdownattr && parseInt($scope.countdownattr, 10) >= 0 ? parseInt($scope.countdownattr, 10) : undefined;
+        $scope.isRunning = false;
+
+        $scope.$on('timer-start', function () {
+          $scope.start();
+        });
+
+        $scope.$on('timer-resume', function () {
+          $scope.resume();
+        });
+
+        $scope.$on('timer-stop', function () {
+          $scope.stop();
+        });
+
+        $scope.$on('timer-clear', function () {
+          $scope.clear();
+        });
+
+        $scope.$on('timer-set-countdown', function (e, countdown) {
+          $scope.countdown = countdown;
+        });
+
+        function resetTimeout() {
+          if ($scope.timeoutId) {
+            clearTimeout($scope.timeoutId);
+          }
+        }
+
+        $scope.start = $element[0].start = function () {
+          $scope.startTime = $scope.startTimeAttr ? new Date($scope.startTimeAttr) : new Date();
+          $scope.endTime = $scope.endTimeAttr ? new Date($scope.endTimeAttr) : null;
+          if (!$scope.countdown) {
+            $scope.countdown = $scope.countdownattr && parseInt($scope.countdownattr, 10) > 0 ? parseInt($scope.countdownattr, 10) : undefined;
+          }
+          resetTimeout();
+          tick();
+          $scope.isRunning = true;
+        };
+
+        $scope.resume = $element[0].resume = function () {
+          resetTimeout();
+          if ($scope.countdownattr) {
+            $scope.countdown += 1;
+          }
+          $scope.startTime = new Date() - ($scope.stoppedTime - $scope.startTime);
+          tick();
+          $scope.isRunning = true;
+        };
+
+        $scope.stop = $scope.pause = $element[0].stop = $element[0].pause = function () {
+          var timeoutId = $scope.timeoutId;
+          $scope.clear();
+          $scope.$emit('timer-stopped', {timeoutId: timeoutId, millis: $scope.millis, seconds: $scope.seconds, minutes: $scope.minutes, hours: $scope.hours, days: $scope.days});
+        };
+
+        $scope.clear = $element[0].clear = function () {
+          // same as stop but without the event being triggered
+          $scope.stoppedTime = new Date();
+          resetTimeout();
+          $scope.timeoutId = null;
+          $scope.isRunning = false;
+        };
+
+        $element.bind('$destroy', function () {
+          resetTimeout();
+          $scope.isRunning = false;
+        });
+
+        function calculateTimeUnits() {
+
+          // compute time values based on maxTimeUnit specification
+          if (!$scope.maxTimeUnit || $scope.maxTimeUnit === 'day') {
+            $scope.seconds = Math.floor(($scope.millis / 1000) % 60);
+            $scope.minutes = Math.floor((($scope.millis / (60000)) % 60));
+            $scope.hours = Math.floor((($scope.millis / (3600000)) % 24));
+            $scope.days = Math.floor((($scope.millis / (3600000)) / 24));
+            $scope.months = 0;
+            $scope.years = 0;
+          } else if ($scope.maxTimeUnit === 'second') {
+            $scope.seconds = Math.floor($scope.millis / 1000);
+            $scope.minutes = 0;
+            $scope.hours = 0;
+            $scope.days = 0;
+            $scope.months = 0;
+            $scope.years = 0;
+          } else if ($scope.maxTimeUnit === 'minute') {
+            $scope.seconds = Math.floor(($scope.millis / 1000) % 60);
+            $scope.minutes = Math.floor($scope.millis / 60000);
+            $scope.hours = 0;
+            $scope.days = 0;
+            $scope.months = 0;
+            $scope.years = 0;
+          } else if ($scope.maxTimeUnit === 'hour') {
+            $scope.seconds = Math.floor(($scope.millis / 1000) % 60);
+            $scope.minutes = Math.floor((($scope.millis / (60000)) % 60));
+            $scope.hours = Math.floor($scope.millis / 3600000);
+            $scope.days = 0;
+            $scope.months = 0;
+            $scope.years = 0;
+          } else if ($scope.maxTimeUnit === 'month') {
+            $scope.seconds = Math.floor(($scope.millis / 1000) % 60);
+            $scope.minutes = Math.floor((($scope.millis / (60000)) % 60));
+            $scope.hours = Math.floor((($scope.millis / (3600000)) % 24));
+            $scope.days = Math.floor((($scope.millis / (3600000)) / 24) % 30);
+            $scope.months = Math.floor((($scope.millis / (3600000)) / 24) / 30);
+            $scope.years = 0;
+          } else if ($scope.maxTimeUnit === 'year') {
+            $scope.seconds = Math.floor(($scope.millis / 1000) % 60);
+            $scope.minutes = Math.floor((($scope.millis / (60000)) % 60));
+            $scope.hours = Math.floor((($scope.millis / (3600000)) % 24));
+            $scope.days = Math.floor((($scope.millis / (3600000)) / 24) % 30);
+            $scope.months = Math.floor((($scope.millis / (3600000)) / 24 / 30) % 12);
+            $scope.years = Math.floor(($scope.millis / (3600000)) / 24 / 365);
+          }
+
+          // plural - singular unit decision
+          $scope.secondsS = $scope.seconds == 1 ? '' : 's';
+          $scope.minutesS = $scope.minutes == 1 ? '' : 's';
+          $scope.hoursS = $scope.hours == 1 ? '' : 's';
+          $scope.daysS = $scope.days == 1 ? '' : 's';
+          $scope.monthsS = $scope.months == 1 ? '' : 's';
+          $scope.yearsS = $scope.years == 1 ? '' : 's';
+          //add leading zero if number is smaller than 10
+          $scope.sseconds = $scope.seconds < 10 ? '0' + $scope.seconds : $scope.seconds;
+          $scope.mminutes = $scope.minutes < 10 ? '0' + $scope.minutes : $scope.minutes;
+          $scope.hhours = $scope.hours < 10 ? '0' + $scope.hours : $scope.hours;
+          $scope.ddays = $scope.days < 10 ? '0' + $scope.days : $scope.days;
+          $scope.mmonths = $scope.months < 10 ? '0' + $scope.months : $scope.months;
+          $scope.yyears = $scope.years < 10 ? '0' + $scope.years : $scope.years;
+
+        }
+
+        //determine initial values of time units and add AddSeconds functionality
+        if ($scope.countdownattr) {
+          $scope.millis = $scope.countdownattr * 1000;
+
+          $scope.addCDSeconds = $element[0].addCDSeconds = function (extraSeconds) {
+            $scope.countdown += extraSeconds;
+            $scope.$digest();
+            if (!$scope.isRunning) {
+              $scope.start();
+            }
+          };
+
+          $scope.$on('timer-add-cd-seconds', function (e, extraSeconds) {
+            $timeout(function () {
+              $scope.addCDSeconds(extraSeconds);
+            });
+          });
+
+          $scope.$on('timer-set-countdown-seconds', function (e, countdownSeconds) {
+            if (!$scope.isRunning) {
+              $scope.clear();
+            }
+
+            $scope.countdown = countdownSeconds;
+            $scope.millis = countdownSeconds * 1000;
+            calculateTimeUnits();
+          });
+        } else {
+          $scope.millis = 0;
+        }
+        calculateTimeUnits();
+
+        var tick = function () {
+
+          $scope.millis = new Date() - $scope.startTime;
+          var adjustment = $scope.millis % 1000;
+
+          if ($scope.endTimeAttr) {
+            $scope.millis = $scope.endTime - new Date();
+            adjustment = $scope.interval - $scope.millis % 1000;
+          }
+
+
+          if ($scope.countdownattr) {
+            $scope.millis = $scope.countdown * 1000;
+          }
+
+          if ($scope.millis < 0) {
+            $scope.stop();
+            $scope.millis = 0;
+            calculateTimeUnits();
+            return;
+          }
+          calculateTimeUnits();
+
+          //We are not using $timeout for a reason. Please read here - https://github.com/siddii/angular-timer/pull/5
+          $scope.timeoutId = setTimeout(function () {
+            tick();
+            $scope.$digest();
+          }, $scope.interval - adjustment);
+
+          $scope.$emit('timer-tick', {timeoutId: $scope.timeoutId, millis: $scope.millis});
+
+          if ($scope.countdown > 0) {
+            $scope.countdown--;
+          }
+          else if ($scope.countdown <= 0) {
+            $scope.stop();
+          }
+        };
+
+        if ($scope.autoStart === undefined || $scope.autoStart === true) {
+          $scope.start();
+        }
+      }]
+    };
+  }]);
+
+/* commonjs package manager support (eg componentjs) */
+if (typeof module !== "undefined" && typeof exports !== "undefined" && module.exports === exports){
+  module.exports = timerModule;
+}

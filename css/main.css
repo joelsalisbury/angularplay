@@ -349,10 +349,41 @@ img{
 	width:125px;
 }
 
+.purple-span{
+	color:#5c0bb3;
+}
+
 #timer{
 	display:none;
 	margin-right:10px;
 	font-size:14pt;
+}
+
+.gameDisabled #lineWrap{
+	display: none!important;
+}
+
+#gameOverWrap{
+	display: none;
+	color:#000;
+	transition:0.5s;
+	-webkit-transition:0.5s;
+}
+
+.gameDisabled #gameOverWrap{
+	display:block;
+}
+
+.returnToMain{
+	display:none;
+}
+
+.gameDisabled .returnToMain{
+	display: block;
+}
+
+.gameDisabled .endGame{
+	display:none;
 }
 
 #timer.shown-true{

@@ -2,11 +2,29 @@
     <h3>Marathon Mode</h3>
 </div>
 <div class="modal-body clearfix">
-    <div class="col-md-6">
-        <label style="color:#333; font-size:16px; line-height:34px;">Starting Line (1-520)</label>
+
+	<div class="col-md-12">
+	    <div class="col-md-6">
+	        <label style="color:#333; font-size:16px; line-height:34px;">Starting Book</label>
+	    </div>
+
+	    <div class="col-md-6">
+	        <select ng-change="startingBookChanged(b)" ng-model="b" name="b" class="form-control">
+	        	<option selected value="1">Book 1</option>
+	        	<option value="2">Book 2</option>
+	        	<option value="4">Book 4</option>
+	        	<option value="6">Book 6</option>
+	        </select>
+	    </div>
     </div>
-    <div class="col-md-6">
-        <input ng-model="currentLineNum" autofocus type="number" min="1" max="520" name="startingline" class="form-control" value="1">
+
+    <div class="col-md-12">
+	    <div class="col-md-6">
+	        <label style="color:#333; font-size:16px; line-height:34px;">Starting Line</label>
+	    </div>
+	    <div class="col-md-6">
+	        <input ng-change="startingLineChanged(v)" ng-model="v" type="number" type="text" name="v" class="form-control" >
+	    </div>
     </div>
 <br>
 </div>

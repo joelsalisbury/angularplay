@@ -2,10 +2,10 @@
     <img id="logo" src="img/logo.png?v2"/>      
 
     <div id="controls" ng-controller="NewGameSetupCtrl">
-        <a ng-click="open('templates/marathonsettings.html?14423')" class="goplay">
+        <a ng-click="open('templates/marathonsettings.html')" class="goplay">
         	<img style="margin-top:-3px; margin-right:5px; width:32px;" src="img/run.png">Marathon
     	</a>   
-        <a ng-click="open('templates/timersettings.html?1234')" class="goplay">
+        <a ng-click="open('templates/timersettings.html')" class="goplay">
         	<img style="margin-top:-3px; width:32px;" src="img/clock.png">
         	Timed
     	</a>   
@@ -14,14 +14,11 @@
         	<img style="margin-top:-3ps; width:32px;" src="img/star.svg">
             Achievements
     	</a>   
-        
-
-
     </div>
 
-        <button ng-controller="NewGameSetupCtrl" style="position:absolute; bottom:10px;" ng-click="open('templates/about.html')" class="btn purple">
+        <a ng-controller="NewGameSetupCtrl" style="position:absolute; bottom:10px;left:43%;" href="#about" class="btn purple">
         About
-        </button>
+        </a>
 
-
+</div>
 

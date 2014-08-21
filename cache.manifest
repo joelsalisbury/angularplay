@@ -1,0 +1,62 @@
+CACHE MANIFEST
+
+#version 1.0 6-24-2014
+
+CACHE:
+
+#images
+http://joelsalisbury.com/projects/scansion/pre-package/img/clock.png
+http://joelsalisbury.com/projects/scansion/pre-package/img/logo.png?v2
+http://joelsalisbury.com/projects/scansion/pre-package/img/run.png
+http://joelsalisbury.com/projects/scansion/pre-package/img/star.svg
+http://joelsalisbury.com/projects/scansion/pre-package/img/touch/apple-touch-icon-144x144-precomposed.png?v=3
+http://joelsalisbury.com/projects/scansion/pre-package/img/touch/apple-touch-icon-114x114-precomposed.png?v=3
+http://joelsalisbury.com/projects/scansion/pre-package/img/touch/apple-touch-icon-72x72-precomposed.png?v=3
+http://joelsalisbury.com/projects/scansion/pre-package/img/touch/apple-touch-icon.png?v=3
+
+
+
+#internal HTML documents
+http://joelsalisbury.com/projects/scansion/pre-package/
+http://joelsalisbury.com/projects/scansion/pre-package/index.html
+http://joelsalisbury.com/projects/scansion/pre-package/templates/about.html
+http://joelsalisbury.com/projects/scansion/pre-package/templates/achievements.html
+http://joelsalisbury.com/projects/scansion/pre-package/templates/credits.html
+http://joelsalisbury.com/projects/scansion/pre-package/templates/game.html
+http://joelsalisbury.com/projects/scansion/pre-package/templates/home.html
+http://joelsalisbury.com/projects/scansion/pre-package/templates/howtoplay.html
+http://joelsalisbury.com/projects/scansion/pre-package/templates/marathonsettings.html
+http://joelsalisbury.com/projects/scansion/pre-package/templates/timersettings.html
+http://joelsalisbury.com/projects/scansion/pre-package/templates/gameover.html
+
+
+
+#style sheets
+http://joelsalisbury.com/projects/scansion/pre-package/css/animations.css?v7
+http://joelsalisbury.com/projects/scansion/pre-package/css/bootstrap.min.css
+http://joelsalisbury.com/projects/scansion/pre-package/css/main.css?v2014-04-21-944pm
+http://joelsalisbury.com/projects/scansion/pre-package/css/normalize.css?v7
+http://joelsalisbury.com/projects/scansion/pre-package/css/toggle-switch.css
+
+#style sheet images
+data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAeCAQAAADu6HTYAAADPElEQVR4Xq3TX2gcRRzA8e/M7mVv2+TSNpc/TZtrY6jUGqgaSAmEChKLrYK0YH0RFC2CSCkEfCghiKU04J8qNigq6os+iQV98MHWFwVBrQQRWs21lBw5cw3NNb1/udu72RGG5Y77IzXW77D7sAwf5scyYoL6BGXSDKFZwaGpLvIUaeoCkvX1MmsM0Ny6oRSQYOLuIS+YZOpfQdqslpUxcZrzTVAz4qPwW2O3CeIwC/RSzeY6Ow1QhUrkr+YOWfEKDkEP8Rij7CHKJmrFSDHBdwGEE5wiGChPN+PnT8VdRtEIl1d4gRj/1EVe5ZSBKGh8iqQpo/Fo5+3C/gz0MYg4zgwbqday1/Q4B8BGQ45d/Hi54lakCrU5obOcidJpu1+Lg9whjabyaOYLnrIBFFaRD+xe2ybMDWY66GmP/WA9cGfGp0CWhy0wkMN8inepFiH2rV1j0NQSNQbFLRQnS8/8YSDBBpadfv4CYDub2fmeHDNAsL1MBWUel0iA+Xik6eHcyvD3vAMSU1TGuA/YRS+dD7ovCQN43GKRFCU20Kd3V/avDVVyAZ5niTEuLA5/zBGWg9EEEhfJKN200Tat8CmRAQb9+wv7soPlHt2tQorsz1uPbr0HTY4sJwrH47zJZwABBAKLMBoQXepwgTwdHCo+fXMkQ4lrxEmQ5AaXipPqDY9V2vn09tgvTPI71EEGYxM+/uMJLJ4svpgaWGKOi/xKgmqLSUGSUd5f2vIVJ/CgBaTIUsZ7ZBsn0+NzfMOXLFCXQyTcybN6ep5ZZgUOHn7jpfUpsZshdugPGf+E5zjbyHTSRyQ8xfRPPM/s63RHeuknSoT22mjmmnAOIMkUZ6D1xSfPPAfd1WFKM3sO2CMaHx8M1NjnXKHaAGGkOW0C02WeYHUz4qMtx+w5gUDS8NckYe5lHsMYwCZEPyEEmjLDZFmAS7CDviMdxyTkMNVBKEmYLvbiQQBIBBbCQG04bGQvFWz6CfsCQLWCigILFwcfkGYBiOpbYuOizTAyYyDdCtrGaRG1LCkIgMYEFhI0WqQZoSlbGRyHKe4qOx7iv2bVQW9dp4dlM/x6kmwnWQcd/Q3FCqwTEiT5s+6D5v/pb0SSHyg7uhMWAAAAAElFTkSuQmCC
+data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACoAAAA8CAYAAAAQTCjdAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAASCQAAEgkB80sG3AAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAKjSURBVGiB7dpPiFVVHMDxz7m9NCtMyI2bEJEC25WrEkzHUXCRraIwdNE8ZxfYIlcis1ZEbGEzT1QCF4XgH1CyWhUoJKIWNRGEiCNKmkSiYTzfcfGuOokx77x3ZlS8382959zfn+/invvn3RdijHIRBrwkOINCYXEcdjpb7VyiYdBsLScwt5y6IloYdzqXo36Ro0gY9IKWo+5JwmzBt2HQnBw9ehYNazyn5TBee8Dh+Vq+CWu92GufnkTDR6ab7gDeBNHouMM/l9tXTXM0fGBmL726Fg1Dam74EsvKqR8VNowL2Yzj5f7rnnE4DHq2235diYYhhTGfC94up35T0y+6di/ITU0rKVd+sEi0P7xr2pSJOu8zvF+OzqEv7vDH/WFxt7/cshy/ticsN8sXYUht0kXDOlsF9XJ4UaEvNoz9X3zc5bKaZThbyr5jzJ4wlNY7KTgM+ES0vhz+KeiPw36fKC/ucAF9uFBOrTZm26SJCtaV27+xIo7cXdkTEhvOoh+XyxprU1qnim7CQdGK2HAyKRexYVShT3RItDElN+mkjiP2Ym+S3f01hv2EVal5WW6hU0ElmptaqJuBpXg6MbeFH2LDpU6CQ93zWIKnEvs0cayGU3glMfkOo1jQYewZzOuyz7FC95Jwo5OgUFfgeg993hh/eTqCTxOSm/iuk8DY0Ap1b2GhtHXxsfZN4j/X0fOx4auEIknEhqv4OiUn1L13Z/+xWfWVaG4q0dxUormpRHNTieamEs1NJZqbJ1Q0jHvdiJo5S2cVjSNOCHZhn3/SnuYnIvl3yomIIz7MXZMn9hydRCrR3FSiualEc1OJ5qYSzU0lmptKNDePjWgwcPePT7/g+4cp8wCW4GXaryK3tL+mLdD5x62ppllgu7bso8q/2HIbzGWdNmWnSJwAAAAASUVORK5CYII=
+http://joelsalisbury.com/projects/scansion/pre-package/img/bg.png
+http://joelsalisbury.com/projects/scansion/pre-package/img/long-purple.png?v03-01-2014
+http://joelsalisbury.com/projects/scansion/pre-package/img/long.png?v=2014-03-01
+http://joelsalisbury.com/projects/scansion/pre-package/img/short-purple.png?v03-01-2014
+http://joelsalisbury.com/projects/scansion/pre-package/img/short.png?v=2014-03-01
+
+#javascript files
+http://joelsalisbury.com/projects/scansion/pre-package/js/vendor/angular.min.js
+http://joelsalisbury.com/projects/scansion/pre-package/js/vendor/angular-route.min.js
+http://joelsalisbury.com/projects/scansion/pre-package/js/vendor/angular-animate.min.js
+http://joelsalisbury.com/projects/scansion/pre-package/js/vendor/ui-bootstrap-tpls.min.js
+http://joelsalisbury.com/projects/scansion/pre-package/js/vendor/zepto.min.js
+http://joelsalisbury.com/projects/scansion/pre-package/js/plugins.js?v9
+http://joelsalisbury.com/projects/scansion/pre-package/js/helper.js
+http://joelsalisbury.com/projects/scansion/pre-package/js/main.js?v19
+http://joelsalisbury.com/projects/scansion/pre-package/data/aeneid1-209.json
+
+NETWORK:
+*

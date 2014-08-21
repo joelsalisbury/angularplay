@@ -3,6 +3,14 @@
         </div>
         <div class="modal-body clearfix">
     
+    		<h4 style="color:#333;">Your High Score</h3>
+    		<p style="text-align:left; color:#333;font-size:16px;" id="userHighScore">{{globalInfo.userHighScore}}</p>
+
+    		<h4 style="color:#333;">Achievements Earned</h3>
+    		<ul id="userAchievements">
+    			<li style="text-align:left; color:#333;" ng-repeat="ach in $root.globalInfo.achievements">{{ach.name}}
+    			<img style="width:48px;"src="img/achievements/{{ach.achievementId}}.png"></li>
+    		</ul>
 
         </div>
         <div class="modal-footer">

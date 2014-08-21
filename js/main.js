@@ -15,6 +15,10 @@ scansionApp.config(['$routeProvider',
         templateUrl: 'templates/game.html',
         controller: 'lineCntrl'
       }).
+      when('/about', {
+        templateUrl: 'templates/about.html',
+        controller: 'lineCntrl'
+      }).
       otherwise({
         redirectTo: '/home'
       });
@@ -24,6 +28,9 @@ scansionApp.config(['$routeProvider',
 scansionApp.controller('homeCntrl', function ($scope, $rootScope) {
     //2 minutes by default
     $rootScope.time = 120;
+    $rootScope.globalInfo = $rootScope.globalInfo || {};
+    $rootScope.globalInfo.achievements = $rootScope.globalInfo || [];
+    $rootScope.bookTitle = "Aeneid";
 
     $rootScope.setMode = function(mode){
         $rootScope.mode = mode;
@@ -40,40 +47,109 @@ scansionApp.controller('homeCntrl', function ($scope, $rootScope) {
         console.log(book + " book set!");
     }
 
+    $rootScope.submitScore = function(score) {
+        localStorage.setItem("userHighScore", score);
+        $rootScope.globalInfo.userHighScore = score;
 
-    $rootScope.setBook('data/aeneid.json');
+        /**var data = {
+            score: score,
+            leaderboardId: "board1"
+        };
+        gamecenter.submitScore(successCallback, failureCallback, data);  **/
+    }
+
+    $rootScope.reportAchievement = function(achName, fancyName) {
+
+        var data = {
+            achievementId: achName,
+            percent: "100",
+            name: fancyName
+        };
+        $rootScope.globalInfo.achievements = $rootScope.globalInfo.achievements || [];
+        $rootScope.globalInfo.achievements.push(data);
+        console.log($rootScope.globalInfo.achievements);
+        localStorage.setItem('userAchievements',JSON.stringify($rootScope.globalInfo.achievements));
+
+        //gamecenter.reportAchievement(successCallback, failureCallback, data);    
+    }
+
+    var storedHighScore = localStorage.getItem("userHighScore");
+    if(!storedHighScore){storedHighScore = 0;}
+
+    var storedAchievements = localStorage.getItem("userAchievements") || null;
+    if(storedAchievements)
+        storedAchievements = JSON.parse(storedAchievements);
+
+    $rootScope.globalInfo.achievements = storedAchievements;
+
+    $rootScope.globalInfo.userHighScore = storedHighScore;
+
+    $rootScope.setBook('data/aeneid1-209.json');
 });   
  
-scansionApp.controller('lineCntrl', function ($scope, $http, $timeout, $rootScope) {
-    $scope.currentLine = 0;
+scansionApp.controller('lineCntrl', function ($scope, $http, $modal, $timeout, $rootScope) {
+
+    $scope.currentLine = $rootScope.startingLine;
     
-    console.log(currentLine);
     $scope.currentLineSyls = [];
     $scope.multiplier = 1;
     $scope.incrementer = 6;
     $scope.activeStreak = 0;
     $scope.mode = $rootScope.mode;
-
-
     $scope.currentScore = 0;
-
     $scope.currentSyl = 0;
+
+    $scope.correctAnswers = 0;
+    $scope.linesComplete = 0;
+
+    $scope.totalAnswers = 0;
+    $scope.bookTitle = $rootScope.bookTitle;
 
     $scope.init = function(){
         $scope.source = $rootScope.source;
 
- if($scope.mode == "timed"){
-        $scope.timer = {};
-        $scope.timer.shown = true;
-        $scope.timer.time = $rootScope.time;
+        if($scope.mode == "timed"){
+                $scope.gametimer = {};
+                $scope.gametimer.shown = true;
+                $scope.gametimer.time = $rootScope.time;
 
-        $timeout(function(){$scope.$broadcast('timer-add-cd-seconds', $scope.timer.time)}, 5);
-    }
+                $scope.timerRunning = true;
+         
+                $scope.startTimer = function (){
+                    $scope.$broadcast('timer-start');
+                    $scope.timerRunning = true;
+                };
+
+                $scope.stopTimer = function (){
+                    $scope.$broadcast('timer-stop');
+                    $scope.timerRunning = false;
+                };
+
+                $scope.$on('timer-stopped', function (event, data){
+                   console.log($scope);
+                   $scope.gamehappen="gameDisabled";
+                   $scope.$apply();
+                });
+                
+            $scope.countdown = $scope.gametimer.time;
+            $scope.interval = 1000;
+        }
+
+
         $http.get($scope.source).success(function(data) {
             $scope.book = data;
             $scope.doRenderedSyllables();
             $scope.highlightSyl(0);
         });
+    }
+
+    $scope.getLineIndexFromBookNumAndLineNum = function(bookNum,lineNum){
+        
+    }
+
+
+    $scope.disableGame = function(){
+        $scope.gamehappen="gameDisabled";
     }
 
     $scope.doRenderedSyllables = function(){
@@ -121,7 +197,11 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $timeout, $rootScop
     $scope.highlightSyl = function(i){
         //$scope.currentCorrect = $scope.renderedSyllables[$scope.currentSyl].quantity;
 
+        console.log($scope.currentLine);
+
+
         if(i == $scope.renderedSyllables.length-2){
+            $scope.linesComplete += 1;
             $scope.hideControls = "hideControls";
         } else{
             $scope.hideControls = "";
@@ -130,27 +210,33 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $timeout, $rootScop
         // reset for new line
         if (i >= $scope.renderedSyllables.length-1){
             ++$scope.currentLine;
-            console.log($scope.currentLine);
+            if($scope.currentLine == 209){
+                $scope.gamehappen="gameDisabled";
+                $scope.$apply();
+            }
             $scope.doRenderedSyllables();
             i = 0;
             $scope.currentSyl = 0;
         }
 
         //but always
-        if($scope.renderedSyllables[i].highlightable)
+        if($scope.renderedSyllables[i].highlightable){
             $scope.renderedSyllables[i].highlight = "highlight-current";
+        }
         else{
             $scope.highlightNextSyl();
         }
     }
 
     $scope.highlightNextSyl = function(){
-        $scope.highlightSyl(++$scope.currentSyl);
+        $scope.currentSyl++;
+        $scope.highlightSyl($scope.currentSyl);
     }
 
     $scope.evaluateResponse = function(response){
         var correctResponse = $scope.renderedSyllables[$scope.currentSyl].quantity;
         var currentSylObj = $scope.renderedSyllables[$scope.currentSyl];
+        $scope.totalAnswers += 1;
 
         if (correctResponse == response){
 
@@ -158,6 +244,8 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $timeout, $rootScop
                 $scope.activeStreak = 0;
 
             isCorrect = true;
+            $scope.correctAnswers += 1;
+
             currentSylObj.highlight = "highlight-right";
             $scope.activeStreak++;
             $scope.currentScore += $scope.multiplier * $scope.incrementer;
@@ -178,6 +266,12 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $timeout, $rootScop
 
     $scope.evaluateStreak = function(){
             console.log("activeStreak:"+ $scope.activeStreak);
+
+            scoreToBeat = $rootScope.globalInfo.userHighScore;
+
+            if($scope.currentScore>scoreToBeat){
+                $rootScope.submitScore($scope.currentScore);
+            }
 
             //1-9: 6pts each (multiplier is 1)
             if(($scope.activeStreak >= 0) && ($scope.activeStreak < 10)){
@@ -201,46 +295,59 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $timeout, $rootScop
             if($scope.activeStreak > 29){
                 console.log('multiplier increased to 4!');
                 $scope.multiplier = 4;
-            }  
+            }        
 
             if($scope.activeStreak == 50){
                 console.log('OMG50!');
-                $rootscope.reportAchievement('50Straight');
+                $rootScope.reportAchievement('50Straight',"Streak: 50 Straight");
             }
 
             if($scope.activeStreak == 100){
                 console.log('OMG100!');
-                $rootscope.reportAchievement('100Straight');
+                $rootScope.reportAchievement('100Straight',"Streak: 100 Straight");
             }     
 
             if($scope.activeStreak == 250){
                 console.log('OMG250!');
-                $rootscope.reportAchievement('250Straight');
+                $rootScope.reportAchievement('250Straight',"Streak: 250 Straight");
             }   
 
             if($scope.activeStreak == 500){
                 console.log('OMG500!');
-                $rootscope.reportAchievement('500Straight');
+                $rootScope.reportAchievement('500Straight',"Streak: 500 Straight");
             } 
 
             if($scope.activeStreak == 1000){
                 console.log('OMG1000!');
-                $rootscope.reportAchievement('1000Straight');
+                $rootScope.reportAchievement('1000Straight',"Streak: 1000 Straight");
             }                                          
 
         }
 });
 
 
-
 // Please note that $modalInstance represents a modal window (instance) dependency.
 // It is not the same as the $modal service used above.
-
 scansionApp.controller('ModalInstanceCtrl',function ($scope, $modalInstance, $rootScope) {
 
+  $scope.v = 1;
+  $scope.startingLineChanged = function(v){
+    console.log('you changed the line brah');
+    $scope.v = v;
+    console.log(v);
+  }
+
+  $scope.b = 1;
+  $scope.startingBookChanged = function(b){
+    console.log('you changed the book brah');
+    $scope.b=b;
+    console.log(b);
+  }
 
   $scope.setMode = function(mode){
     $rootScope.setMode(mode);
+    $rootScope.startingLine = $scope.v-1;
+
   }
 
   $scope.setTime = function(time){
@@ -270,6 +377,8 @@ scansionApp.controller('NewGameSetupCtrl', function ($scope, $modal, $log, $root
 
 scansionApp.controller('AchievementsCtrl', function ($scope, $modal, $log, $rootScope) {
 
+  $scope.achievements = $rootScope.globalInfo.achievements;
+
   $scope.open = function (templateurl) {
 
     var modalInstance = $modal.open({
@@ -293,12 +402,30 @@ scansionApp.controller('AchievementsCtrl', function ($scope, $modal, $log, $root
   }
 
  $scope.submitScore = function(score) {
+    localStorage.setItem("userHighScore", score);
+    $rootScope.globalInfo.userHighScore = score;
+
+
     var data = {
         score: score,
         leaderboardId: "board1"
     };
-    gamecenter.submitScore(successCallback, failureCallback, data);  
+    //gamecenter.submitScore(successCallback, failureCallback, data);  
   }
+
+ $scope.reportAchievement = function(achName, fancyName) {
+
+    $rootScope.globalInfo.achievements[achName] = 100;
+    localStorage.setItem('userAchievements',JSON.stringify($rootScope.globalInfo.achievements));
+
+    var data = {
+        achievementId: achName,
+        percent: "100",
+        name:fancyName
+    };
+
+    //gamecenter.reportAchievement(successCallback, failureCallback, data);    
+ }
  
  $scope.showLeaderboard = function(timeperiod) {
 
@@ -308,15 +435,18 @@ scansionApp.controller('AchievementsCtrl', function ($scope, $modal, $log, $root
         period: timeperiod,
         leaderboardId: "board1"
     };
-    gamecenter.showLeaderboard(successCallback, failureCallback, data);
+    //gamecenter.showLeaderboard(successCallback, failureCallback, data);
  }
 
-
  $scope.reportAchievement = function(achName) {
+
+    $rootScope.globalInfo.achievements[achName] = 100;
+    localStorage.setItem('userAchievements',JSON.stringify($rootScope.globalInfo.achievements));
+
     var data = {
         achievementId: achName,
         percent: "100"
     };
-    gamecenter.reportAchievement(successCallback, failureCallback, data);    
+    //gamecenter.reportAchievement(successCallback, failureCallback, data);    
  }
 });

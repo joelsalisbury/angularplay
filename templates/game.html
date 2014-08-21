@@ -1,6 +1,12 @@
-<div id="lineCntrl" ng-controller="lineCntrl" ng-init="init()">
+
+<div id="lineCntrl" ng-controller="lineCntrl" class="{{gamehappen}}"ng-init="init()">
+<a class="returnToMain" style="position:absolute; font-size:16px; top:25px; left:10px; color:#5c0bb3;" href="#home"><img src="img/back_light.svg" style="width:18px;margin-top:-3px;">Main Menu</a>
+<a class="endGame" style="position:absolute; font-size:16px; top:25px; right:80px; color:#5c0bb3;" href="javascript:void(0);" ng-click="disableGame()"><img src="img/cancel.svg" style="margin-top:-3px;width:16px;"> End Game</a>
     <div id="lineWrap">
-        <h4 id="currentLine"><span ng-repeat= "syllable in renderedSyllables"><span id="syl{{syllable.id}}" class="syl {{syllable.highlight}} {{syllable.answer}}"><span class="correctanswer syllable{{syllable.quantity}}quant"></span>{{syllable.text}}</span></span></h4>
+        <h1 style="position:relative; top:-25px;" class="purple-span"><em>{{bookTitle}}</em> 1.{{currentLine+1}}</h1>
+        <h4  id="currentLine">
+            <span ng-repeat= "syllable in renderedSyllables"><span id="syl{{syllable.id}}" class="syl {{syllable.highlight}} {{syllable.answer}}"><span class="correctanswer syllable{{syllable.quantity}}quant"></span>{{syllable.text}}</span></span>
+            </h4>
  
         <div class="{{hideControls}}" id="controls">
             <a class="long" ng-click="evaluateResponse('-')">long</a>                    
@@ -10,14 +16,20 @@
         </div> 
     </div>  
 
-    <div class="clearfix" id= "currentScore">
+    <div id="gameOverWrap">
+    <h2>Game over.</h2>
+    <h4>Lines Completed: <span class="purple-span">{{linesComplete}}</span></h4>
+    <h4>Total Answers: <span class="purple-span">{{totalAnswers}}</span> | Correct Answers: <span class="purple-span">{{correctAnswers}}</span> (<span class="purple-span">{{correctAnswers/totalAnswers*100 |number:0}}%</span>)</h4>
+    </div>
 
+    <div class="clearfix" id= "currentScore">
         <h3>Streak: {{activeStreak}} 
         <span class='multiplier'>{{multiplier}}X</span> 
-
         <span style="margin-left:25px;font-size:14px;" id="mode"></span></h3>
-        <span id="timer" class="shown-{{timer.shown}}"><timer interval="1000" countdown="1">{{minutes}}m {{seconds}}s</timer></span>
-        <h1>Score: {{currentScore}} </h1>
+        <span id="timer" class="shown-{{gametimer.shown}}">
+        <timer ng-attr-countdown="countdown" ng-attr-interval="interval">{{mminutes}}:{{sseconds}}</timer>
+        </span>
+        <h1>Score: {{currentScore}}</h1>
     </div>                                   
 </div>
             
