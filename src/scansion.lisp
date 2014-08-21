@@ -42,10 +42,9 @@
 		       "lines" (:object
 				,@(loop for book in books append
 				       `(,(book-id book)
-					  (:object
+					  (:array
 					   ,@(loop for line in (book-lines book) append
-						  `(,(line-id line)
-						     (:object
+						  `((:object
 						      "id" ,(line-numbr line)
 						      "index" ,(line-index line)
 						      "string" ,(line-text line)
@@ -59,5 +58,4 @@
 											      (1 "-")
 											      (2 "x"))
 									    "start" ,(syllable-start sylb)
-									    "charCnt" ,(syllable-char-cnt sylb)))))))))))))))))
-)
+									    "charCnt" ,(syllable-char-cnt sylb))))))))))))))))))
