@@ -1,62 +1,49 @@
-(in-package :cl-user)
-(defpackage :scansion.parsing
-  (:use :cl)
-  (:import-from :scansion.utils
-		:split-string)
-  (:import-from :scansion.model
-		:syllable
-		:line
-		:book)
-  (:export :get-lines))
-(in-package :scansion.parsing)
+(in-package :scansion)
 
-;(defvar local-file #p"./data/aeneid.csv")
+(defvar local-file #p"./data/aeneid.csv")
 
-(defun get-lines (file book &optional (parse-only nil))
+(defun refresh-db (file &optional (parse-only nil))
+  ;; Get rid of the old data
+  (with-connection (db-params)
+    (execute (:delete-from 'syllable))
+    (execute (:delete-from 'line)))
   (with-open-file (in file :direction :input)
-    (make-instance 'book
-		   :id (concatenate 'string "book" book)
-		   :lines (loop for text-line = (read-line in nil)
-			     while text-line collect
-			       (let* ((junk-1 (read-line in nil))
-				      (syllable-line (read-line in nil))
-				      (length-line (read-line in nil))
-				      (junk-2 (read-line in nil)))
-				 (declare (ignore junk-1 junk-2))
-				 (print text-line)
-				 (process-line (pre-process-text-line text-line)
-					       (pre-process-syllable-line syllable-line)
-					       (pre-process-length-line length-line)
-					       parse-only))))))
+    (loop for text-line = (read-line in nil)
+       while text-line do
+	 (let* ((junk-1 (read-line in nil))
+		(syllable-line (read-line in nil))
+		(length-line (read-line in nil))
+		(junk-2 (read-line in nil)))
+	   (declare (ignore junk-1 junk-2))
+	   (process-line (pre-process-text-line text-line)
+			 (pre-process-syllable-line syllable-line)
+			 (pre-process-length-line length-line)
+			 parse-only)))))
 
 (defun process-line (text syllables lengths &optional (parse-only nil))
-  (make-instance 'line
-		 :id (concatenate 'string "line" (write-to-string (car text)))
-		 :text (cadr text) :numbr (car text)
-		 :syllables (process-syllables (coerce (cadr text) 'list) syllables lengths 0 0 parse-only)))
+  (let ((line (line-create :text (cadr text) :numbr (car text))))
+    (process-syllables (line-id line) (coerce (cadr text) 'list) syllables lengths 0 0 parse-only)))
 
-(defun process-syllables (text syllables lengths pos index &optional (parse-only nil) (accum nil))
+(defun process-syllables (line-id text syllables lengths pos index &optional (parse-only nil))
   (let* ((trimmed-sylb (string-trim " " (car syllables)))
 	 (sylb (coerce trimmed-sylb 'list)))
     (multiple-value-bind (start len) (get-syllable-range text sylb index)
-      (when (not parse-only)
-	  (push (make-instance 'syllable
-			       :position pos
-			       :start start
-			       :char-cnt len
-			       :length (car lengths)
-			       :text trimmed-sylb)
-		accum))
-      (if (cdr syllables)
-	(process-syllables (nthcdr (+ (- start index) len) text)
+      (if (not parse-only)
+	  (syllable-create :line-id line-id
+			   :position pos
+			   :start start
+			   :char-cnt len
+			   :length (car lengths)
+			   :text trimmed-sylb))
+      (when (cdr syllables)
+	(process-syllables line-id
+			   (nthcdr (+ (- start index) len) text)
 			   (cdr syllables) 
 			   (cdr lengths)
 			   (1+ pos)
 			   (+ start len)
-			   parse-only
-			   accum)
-	(nreverse accum)))))
-
+			   parse-only)))))
+    
 (defun get-syllable-range (text sylb &optional (start 0))
   (multiple-value-bind (fresh-text offset) (eat-space text)
     (let ((start (+ start offset))
@@ -80,6 +67,7 @@
 	(if (equal #\- (car sylb))
 	    (determine-syllable-length text (cdr sylb) len)
 	    (error 'bad-syllable)))))
+
 
 (defun match-text-sylb (text sylb)
   "Matches one or more characters from text and sylb. Return match and numbers."
@@ -111,23 +99,18 @@
     (declare (ignore x y z)) match))
 
 (defun pre-process-text-line (line)
-  (let ((quote-parts (split-string line #\")))
-    (if (< 1 (length quote-parts))
-	(let* ((line-num (parse-integer (nth 1 (split-string (car quote-parts) #\,))))
-	       (text (cadr quote-parts)))
-	  (list line-num text))
-	(let* ((parts (split-string line #\,))
-	       (line-num (parse-integer (nth 1 parts)))
-	       (text (nth 3 parts)))
-	  (list line-num text)))))
+  (let* ((parts (split-string line #\#))
+	 (line-num (parse-integer (nth 1 parts)))
+	 (text (nth 3 parts)))
+    (list line-num text)))
 
 (defun pre-process-syllable-line (line)
-  (let ((syllables (cdr (split-string line #\,))))
+  (let ((syllables (cdr (split-string line #\#))))
     (loop for syllable in syllables
        while (not (equal syllable "")) collect syllable)))
 
 (defun pre-process-length-line (line)
-  (let ((lengths (cdr (split-string line #\,))))
+  (let ((lengths (cdr (split-string line #\#))))
     (loop for length in lengths
        while (not (equal length "")) collect
 	 (let ((len (string-trim " " length)))

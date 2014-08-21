@@ -1,43 +1,43 @@
-(in-package :cl-user)
-(defpackage :scansion.utils
-  (:use :cl)
-  (:export :split-string
-	   :group
-	   :equal-report
-	   :test
-	   :test-package))
-(in-package :scansion.utils)
+(in-package :scansion)
 
-(defun split-string (string char)
-  "Returns a list of substrings of string divided by char."
-  (loop for i = 0 then (1+ j)
-     as j = (position char string :start i)
-     collect (subseq string i j)
-     while j))
+(defmacro! defmodel (name slot-definitions)
+  `(progn
+     (defclass ,name ()
+       ((id :col-type serial :reader ,(symb- name 'id))
+	,@slot-definitions)
+       (:metaclass dao-class)
+       (:keys id))
+     
+     (with-connection (db-params)
+       (unless (table-exists-p ',name)
+	 (execute (dao-table-definition ',name))))
+     
+     (defmacro ,(symb- name 'create) (&rest args)
+       `(with-connection (db-params)
+	  (make-dao ',',name ,@args)))
 
-(defun group (source n)
-  (if (zerop n) (error "zero length"))
-  (labels ((rec (source acc)
-             (let ((rest (nthcdr n source)))
-               (if (consp rest)
-                   (rec rest (cons
-                               (subseq source 0 n)
-                               acc))
-                   (nreverse
-                     (cons source acc))))))
-    (if source (rec source nil) nil)))
+     (defun ,(symb- name 'get-all) ()
+       (with-connection (db-params)
+	 (select-dao ',name)))
+     
+     (defun ,(symb- name 'get) (id)
+       (with-connection (db-params)
+	 (get-dao ',name id)))
 
-(defun equal-report (a b)
-  "NST report for determining if a and b are equal."
-  (if (equal a b)
-      (nst:make-success-report)
-      (nst:make-failure-report :format "expected ~A but got ~A"
-			       :args (list a b))))
+     (defmacro ,(symb- 'with name) (id bind &body body)
+       `(with-connection (db-params)
+	  (let ((,bind (funcall #',(symb- ',name 'get) ,id)))
+	    ,@body)))
+     
+     (defmacro ,(symb- name 'select) (sql-test &rest sort)
+       `(with-connection (db-params)
+	  (select-dao ',',name ,sql-test ,@sort)))
 
-(defmacro test (group)
-  "NST shortcut for running all tests in a given group."
-  `(nst:nst-cmd :run-group ,group))
+     (defun ,(symb- name 'update) (,name)
+       (with-connection (db-params)
+	 (update-dao ,name)))
 
-(defun test-package ()
-  "NST shortcut for running all tests in a package."
-  (nst:nst-cmd :run-package))
+     (defun ,(symb- name 'delete) (,name)
+       (with-connection (db-params)
+	 (delete-dao ,name)))))
+
