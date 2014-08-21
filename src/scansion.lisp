@@ -11,8 +11,11 @@
 		:syllable-text
 		:line-numbr
 		:line-text
-		:line-book
-		:line-syllables)
+		:line-syllables
+		:line-id
+		:book
+		:book-id
+		:book-lines)
   (:import-from :scansion.utils
 		:group)
   (:export :main
@@ -26,8 +29,8 @@
     (process-files files outfile)))
 
 (defun process-files (files outfile)
-  (let ((lines (loop for file in files
-		  append (get-lines (cadr file) (car file)))))
+  (let ((books (loop for file in files
+		  collect (get-lines (cadr file) (car file)))))
     (with-open-file (out outfile
 			 :direction :output
 			 :if-exists :supersede
@@ -35,20 +38,24 @@
       (format out (json:with-explicit-encoder
 		    (json:encode-json-to-string
 		     `(:object
-		       "lines" (:array
-				,@(loop for line in lines collect
-				       `(:object
-					 "id" ,(line-numbr line)
-					 "book" ,(line-book line)
-					 "string" ,(line-text line)
-					 "syllables" (:array
-						      ,@(loop for sylb in (line-syllables line) collect
-							     `(:object
-							       "id" ,(syllable-position sylb)
-							       "text" ,(syllable-text sylb)
-							       "quantity" ,(case (syllable-length sylb)
-										 (0 "u")
-										 (1 "-")
-										 (2 "x"))
-							       "start" ,(syllable-start sylb)
-							       "charCnt" ,(syllable-char-cnt sylb))))))))))))))
+		       "lines" (:object
+				,@(loop for book in books append
+				       `(,(book-id book)
+					  (:object
+					   ,@(loop for line in (book-lines book) append
+						  `(,(line-id line)
+						     (:object
+						      "id" ,(line-numbr line)
+						      "string" ,(line-text line)
+						      "syllables" (:array
+								   ,@(loop for sylb in (line-syllables line) collect
+									  `(:object
+									    "id" ,(syllable-position sylb)
+									    "text" ,(syllable-text sylb)
+									    "quantity" ,(case (syllable-length sylb)
+											      (0 "u")
+											      (1 "-")
+											      (2 "x"))
+									    "start" ,(syllable-start sylb)
+									    "charCnt" ,(syllable-char-cnt sylb)))))))))))))))))
+)

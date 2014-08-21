@@ -5,7 +5,8 @@
 		:split-string)
   (:import-from :scansion.model
 		:syllable
-		:line)
+		:line
+		:book)
   (:export :get-lines))
 (in-package :scansion.parsing)
 
@@ -13,22 +14,25 @@
 
 (defun get-lines (file book &optional (parse-only nil))
   (with-open-file (in file :direction :input)
-    (loop for text-line = (read-line in nil)
-       while text-line collect
-	 (let* ((junk-1 (read-line in nil))
-		(syllable-line (read-line in nil))
-		(length-line (read-line in nil))
-		(junk-2 (read-line in nil)))
-	   (declare (ignore junk-1 junk-2))
-	   (print text-line)
-	   (process-line book
-			 (pre-process-text-line text-line)
-			 (pre-process-syllable-line syllable-line)
-			 (pre-process-length-line length-line)
-			 parse-only)))))
+    (make-instance 'book
+		   :id (concatenate 'string "book" book)
+		   :lines (loop for text-line = (read-line in nil)
+			     while text-line collect
+			       (let* ((junk-1 (read-line in nil))
+				      (syllable-line (read-line in nil))
+				      (length-line (read-line in nil))
+				      (junk-2 (read-line in nil)))
+				 (declare (ignore junk-1 junk-2))
+				 (print text-line)
+				 (process-line (pre-process-text-line text-line)
+					       (pre-process-syllable-line syllable-line)
+					       (pre-process-length-line length-line)
+					       parse-only))))))
 
-(defun process-line (book text syllables lengths &optional (parse-only nil))
-  (make-instance 'line :book book :text (cadr text) :numbr (car text)
+(defun process-line (text syllables lengths &optional (parse-only nil))
+  (make-instance 'line
+		 :id (concatenate 'string "line" (write-to-string (car text)))
+		 :text (cadr text) :numbr (car text)
 		 :syllables (process-syllables (coerce (cadr text) 'list) syllables lengths 0 0 parse-only)))
 
 (defun process-syllables (text syllables lengths pos index &optional (parse-only nil) (accum nil))
