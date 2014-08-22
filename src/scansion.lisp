@@ -44,6 +44,7 @@
 				       `(,(book-id book)
 					  (:object
 					   "name" ,(book-id book)
+					   "firstLine" ,(line-numbr (car (book-lines book)))
 					   "rangeDisplay" ,(build-range-display (book-lines book))
 					   "lines" (:array
 						    ,@(loop for line in (book-lines book) append
