@@ -25,12 +25,14 @@ scansionApp.config(['$routeProvider',
 }]);
 
 
-scansionApp.controller('homeCntrl', function ($scope, $rootScope) {
+scansionApp.controller('homeCntrl', function ($scope, $rootScope, $http) {
     //2 minutes by default
     $rootScope.time = 120;
     $rootScope.globalInfo = $rootScope.globalInfo || {};
     $rootScope.globalInfo.achievements = $rootScope.globalInfo || [];
     $rootScope.bookTitle = "Aeneid";
+
+
 
     $rootScope.setMode = function(mode){
         $rootScope.mode = mode;
@@ -42,8 +44,14 @@ scansionApp.controller('homeCntrl', function ($scope, $rootScope) {
         console.log(time + " time set!");
     }
 
-    $rootScope.setBook = function(book){
+    $rootScope.setAllData = function(book){
         $rootScope.source = book;
+
+
+        $http.get($rootScope.source).success(function(data) {
+            $rootScope.allData = data;
+        });
+
         console.log(book + " book set!");
     }
 
@@ -84,12 +92,11 @@ scansionApp.controller('homeCntrl', function ($scope, $rootScope) {
 
     $rootScope.globalInfo.userHighScore = storedHighScore;
 
-    $rootScope.setBook('data/aeneid1-209.json');
+    $rootScope.setAllData('data/data.json');
 });   
  
 scansionApp.controller('lineCntrl', function ($scope, $http, $modal, $timeout, $rootScope) {
 
-    $scope.currentLine = $rootScope.startingLine;
     
     $scope.currentLineSyls = [];
     $scope.multiplier = 1;
@@ -127,37 +134,53 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $modal, $timeout, $
 
                 $scope.$on('timer-stopped', function (event, data){
                    console.log($scope);
-                   $scope.gamehappen="gameDisabled";
+                   $scope.disableGame();
                    $scope.$apply();
                 });
                 
             $scope.countdown = $scope.gametimer.time;
             $scope.interval = 1000;
         }
+        
 
 
-        $http.get($scope.source).success(function(data) {
-            $scope.book = data;
+        
+            $scope.book = $rootScope.allData.lines[$rootScope.b];
+            //console.log(data);
+            //console.log($rootScope.b);
+   
+
+            $scope.currentLineIndex = $scope.getIndexByLineNum($rootScope.startingLine);
             $scope.doRenderedSyllables();
             $scope.highlightSyl(0);
-        });
+       
     }
 
-    $scope.getLineIndexFromBookNumAndLineNum = function(bookNum,lineNum){
-        
+    $scope.getIndexByLineNum = function (lineNumber){
+        for (var i=0; i<$scope.book.lines.length; i++){
+            if($scope.book.lines[i].id == lineNumber){
+                return i;
+            }
+        }
     }
-
 
     $scope.disableGame = function(){
         $scope.gamehappen="gameDisabled";
     }
 
     $scope.doRenderedSyllables = function(){
-        $scope.currentLineText = $scope.book.lines[$scope.currentLine].string;
-        $scope.currentLineSyls = $scope.book.lines[$scope.currentLine].syllables;
+        console.log("current line index: " + $scope.currentLineIndex);
+
+        $scope.currentLine = $scope.book.lines[$scope.currentLineIndex];
+        //console.log("book: " + $scope.book);
+
+        console.log("line obj: " + $scope.currentLine);
+        $scope.currentLineText = $scope.currentLine.string;
+        $scope.currentLineSyls = $scope.currentLine.syllables;
+
         $scope.renderedSyllables = [];
         var rendsyls = []
-        var fullLine = $scope.book.lines[$scope.currentLine].string;
+        var fullLine = $scope.currentLine.string;
 
         //for every syllable in currentLineSyls,
             // grab the characters from currentLineSyl.start + currentLineSyl.charCnt in fullLine
@@ -209,11 +232,13 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $modal, $timeout, $
 
         // reset for new line
         if (i >= $scope.renderedSyllables.length-1){
-            ++$scope.currentLine;
-            if($scope.currentLine == 209){
-                $scope.gamehappen="gameDisabled";
-                $scope.$apply();
-            }
+            ++$scope.currentLineIndex;
+
+            var maxIndex = $scope.book.lines.length;
+
+            if($scope.currentLineIndex >= maxIndex)
+                $scope.disableGame();
+
             $scope.doRenderedSyllables();
             i = 0;
             $scope.currentSyl = 0;
@@ -337,17 +362,22 @@ scansionApp.controller('ModalInstanceCtrl',function ($scope, $modalInstance, $ro
     console.log(v);
   }
 
-  $scope.b = 1;
+  $scope.b = "Book 1";
   $scope.startingBookChanged = function(b){
     console.log('you changed the book brah');
-    $scope.b=b;
+    var buk = $rootScope.allData.lines[b];
+    $scope.availableLines = buk.rangeDisplay;
+    $scope.v = buk.firstLine;
+    $scope.b = b;
     console.log(b);
   }
 
+  $scope.startingBookChanged($scope.b);
+
   $scope.setMode = function(mode){
     $rootScope.setMode(mode);
-    $rootScope.startingLine = $scope.v-1;
-
+    $rootScope.startingLine = $scope.v;
+    $rootScope.b = $scope.b;
   }
 
   $scope.setTime = function(time){

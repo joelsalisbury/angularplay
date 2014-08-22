@@ -10,10 +10,7 @@
 
 	    <div class="col-md-6">
 	        <select ng-change="startingBookChanged(b)" ng-model="b" name="b" class="form-control">
-	        	<option selected value="1">Book 1</option>
-	        	<option value="2">Book 2</option>
-	        	<option value="4">Book 4</option>
-	        	<option value="6">Book 6</option>
+	        	<option ng-repeat= "book in allData.lines" value="{{book.name}}" ng-selected="{{book.name == 'Book 1'}}">{{book.name}}</option>
 	        </select>
 	    </div>
     </div>
@@ -25,6 +22,8 @@
 	    <div class="col-md-6">
 	        <input ng-change="startingLineChanged(v)" ng-model="v" type="number" type="text" name="v" class="form-control" >
 	    </div>
+	    <div ng-show="availableLines" class="col-md-12"><strong style="color:#000;">Available Lines: </strong><span style="font-size:11px; text-align:center; color:#565656;">{{availableLines}}</span></div>
+
     </div>
 <br>
 </div>

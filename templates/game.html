@@ -3,7 +3,7 @@
 <a class="returnToMain" style="position:absolute; font-size:16px; top:25px; left:10px; color:#5c0bb3;" href="#home"><img src="img/back_light.svg" style="width:18px;margin-top:-3px;">Main Menu</a>
 <a class="endGame" style="position:absolute; font-size:16px; top:25px; right:80px; color:#5c0bb3;" href="javascript:void(0);" ng-click="disableGame()"><img src="img/cancel.svg" style="margin-top:-3px;width:16px;"> End Game</a>
     <div id="lineWrap">
-        <h1 style="position:relative; top:-25px;" class="purple-span"><em>{{bookTitle}}</em> 1.{{currentLine+1}}</h1>
+        <h1 style="position:relative; top:-25px;" class="purple-span"><em>{{bookTitle}}</em> {{b}}.{{currentLine.id}}</h1>
         <h4  id="currentLine">
             <span ng-repeat= "syllable in renderedSyllables"><span id="syl{{syllable.id}}" class="syl {{syllable.highlight}} {{syllable.answer}}"><span class="correctanswer syllable{{syllable.quantity}}quant"></span>{{syllable.text}}</span></span>
             </h4>
