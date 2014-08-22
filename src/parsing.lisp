@@ -16,7 +16,7 @@
   (let ((index -1))
     (with-open-file (in file :direction :input)
       (make-instance 'book
-		     :id (concatenate 'string "book" book)
+		     :id (concatenate 'string "Book " book)
 		     :lines (loop for text-line = (read-line in nil)
 			       while text-line collect
 				 (let* ((junk-1 (read-line in nil))
