@@ -354,22 +354,43 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $modal, $timeout, $
 // Please note that $modalInstance represents a modal window (instance) dependency.
 // It is not the same as the $modal service used above.
 scansionApp.controller('ModalInstanceCtrl',function ($scope, $modalInstance, $rootScope) {
+$scope.b = "Book 1";
+
+ $scope.yesnocango = false;
+ $scope.getIndexByLineNum = function (bnum,lineNumber){
+        var buk = $rootScope.allData.lines[bnum];
+
+        var ret = -1;
+        for (var i=0; i < buk.lines.length; i++){
+            if(buk.lines[i].id == lineNumber){
+                ret = i;
+            }
+        }
+        //console.log(ret);
+        return ret;
+  }
+
 
   $scope.v = 1;
   $scope.startingLineChanged = function(v){
-    console.log('you changed the line brah');
+    //console.log('you changed the line brah');
+    //console.log(v);
     $scope.v = v;
-    console.log(v);
-  }
+    if($scope.getIndexByLineNum($scope.b, v) != -1){
+        $scope.yesnocango = true;
+    } else {$scope.yesnocango = false;}
 
-  $scope.b = "Book 1";
+  }  
+
   $scope.startingBookChanged = function(b){
-    console.log('you changed the book brah');
+    //console.log('you changed the book brah');
+    //console.log(b);
+
     var buk = $rootScope.allData.lines[b];
     $scope.availableLines = buk.rangeDisplay;
-    $scope.v = buk.firstLine;
     $scope.b = b;
-    console.log(b);
+    $scope.startingLineChanged(buk.firstLine);
+
   }
 
   $scope.startingBookChanged($scope.b);
