@@ -290,6 +290,7 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $modal, $timeout, $
     }
 
     $scope.evaluateStreak = function(){
+
             console.log("activeStreak:"+ $scope.activeStreak);
 
             scoreToBeat = $rootScope.globalInfo.userHighScore;
@@ -321,7 +322,12 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $modal, $timeout, $
                 console.log('multiplier increased to 4!');
                 $scope.multiplier = 4;
             }        
-
+            /*
+            *   STREAKS START AT 50!
+            *   First, check to see if the user already has a streak stored.
+            *       If not, store the streak!
+            *       If yes, NOTHING! Not twice! Not three times! Just CHILL!
+            */
             if($scope.activeStreak == 50){
                 console.log('OMG50!');
                 $rootScope.reportAchievement('50Straight',"Streak: 50 Straight");
@@ -498,6 +504,6 @@ scansionApp.controller('AchievementsCtrl', function ($scope, $modal, $log, $root
         achievementId: achName,
         percent: "100"
     };
-    //gamecenter.reportAchievement(successCallback, failureCallback, data);    
+    gamecenter.reportAchievement(successCallback, failureCallback, data);
  }
 });
