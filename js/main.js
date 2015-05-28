@@ -291,8 +291,8 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $modal, $timeout, $
         $scope.highlightNextSyl();
     }
 
-    $scope.UnitDo50 = function(){
-        $rootScope.reportAchievement('100Straight',"Streak: 100 Straight");
+    $scope.UnitDoStreak = function(streak){
+        $rootScope.reportAchievement(streak+"Straight","Streak:"+streak+" Straight");
     }
 
     $scope.evaluateStreak = function(){
@@ -335,27 +335,22 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $modal, $timeout, $
             *       If yes, NOTHING! Not twice! Not three times! Just CHILL!
             */
             if($scope.activeStreak == 50){
-                console.log('OMG50!');
                 $rootScope.reportAchievement('50Straight',"Streak: 50 Straight");
             }
 
             if($scope.activeStreak == 100){
-                console.log('OMG100!');
                 $rootScope.reportAchievement('100Straight',"Streak: 100 Straight");
             }     
 
             if($scope.activeStreak == 250){
-                console.log('OMG250!');
                 $rootScope.reportAchievement('250Straight',"Streak: 250 Straight");
             }   
 
             if($scope.activeStreak == 500){
-                console.log('OMG500!');
                 $rootScope.reportAchievement('500Straight',"Streak: 500 Straight");
             } 
 
             if($scope.activeStreak == 1000){
-                console.log('OMG1000!');
                 $rootScope.reportAchievement('1000Straight',"Streak: 1000 Straight");
             }                                          
 
