@@ -47,7 +47,6 @@ scansionApp.controller('homeCntrl', function ($scope, $rootScope, $http) {
     $rootScope.setAllData = function(book){
         $rootScope.source = book;
 
-
         $http.get($rootScope.source).success(function(data) {
             $rootScope.allData = data;
         });
@@ -73,8 +72,11 @@ scansionApp.controller('homeCntrl', function ($scope, $rootScope, $http) {
             percent: "100",
             name: fancyName
         };
-        $rootScope.globalInfo.achievements = $rootScope.globalInfo.achievements || [];
-        $rootScope.globalInfo.achievements.push(data);
+        //if we've already begun tracking...or not
+        $rootScope.globalInfo.achievements = $rootScope.globalInfo.achievements || {};
+
+
+        $rootScope.globalInfo.achievements[achName]=data;
         console.log($rootScope.globalInfo.achievements);
         localStorage.setItem('userAchievements',JSON.stringify($rootScope.globalInfo.achievements));
 
@@ -289,6 +291,10 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $modal, $timeout, $
         $scope.highlightNextSyl();
     }
 
+    $scope.UnitDo50 = function(){
+        $rootScope.reportAchievement('100Straight',"Streak: 100 Straight");
+    }
+
     $scope.evaluateStreak = function(){
 
             console.log("activeStreak:"+ $scope.activeStreak);
@@ -447,8 +453,6 @@ scansionApp.controller('AchievementsCtrl', function ($scope, $modal, $log, $root
   $scope.fetchAchievements = function() {
     var data = { };
 
-    gamecenter.reportAchievement(successCallback, failureCallback, data);
-
     var successCallback = function(result) {
         if (results) {
             for (var i=0;i<results.length;i++) {
@@ -470,19 +474,7 @@ scansionApp.controller('AchievementsCtrl', function ($scope, $modal, $log, $root
     //gamecenter.submitScore(successCallback, failureCallback, data);  
   }
 
- $scope.reportAchievement = function(achName, fancyName) {
-
-    $rootScope.globalInfo.achievements[achName] = 100;
-    localStorage.setItem('userAchievements',JSON.stringify($rootScope.globalInfo.achievements));
-
-    var data = {
-        achievementId: achName,
-        percent: "100",
-        name:fancyName
-    };
-
-    //gamecenter.reportAchievement(successCallback, failureCallback, data);    
- }
+ 
  
  $scope.showLeaderboard = function(timeperiod) {
 
@@ -495,15 +487,4 @@ scansionApp.controller('AchievementsCtrl', function ($scope, $modal, $log, $root
     //gamecenter.showLeaderboard(successCallback, failureCallback, data);
  }
 
- $scope.reportAchievement = function(achName) {
-
-    $rootScope.globalInfo.achievements[achName] = 100;
-    localStorage.setItem('userAchievements',JSON.stringify($rootScope.globalInfo.achievements));
-
-    var data = {
-        achievementId: achName,
-        percent: "100"
-    };
-    gamecenter.reportAchievement(successCallback, failureCallback, data);
- }
 });
