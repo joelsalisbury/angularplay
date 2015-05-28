@@ -57,12 +57,6 @@ scansionApp.controller('homeCntrl', function ($scope, $rootScope, $http) {
     $rootScope.submitScore = function(score) {
         localStorage.setItem("userHighScore", score);
         $rootScope.globalInfo.userHighScore = score;
-
-        /**var data = {
-            score: score,
-            leaderboardId: "board1"
-        };
-        gamecenter.submitScore(successCallback, failureCallback, data);  **/
     }
 
     $rootScope.reportAchievement = function(achName, fancyName) {
@@ -143,14 +137,8 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $modal, $timeout, $
             $scope.countdown = $scope.gametimer.time;
             $scope.interval = 1000;
         }
-        
-
-
-        
+                
             $scope.book = $rootScope.allData.lines[$rootScope.b];
-            //console.log(data);
-            //console.log($rootScope.b);
-   
 
             $scope.currentLineIndex = $scope.getIndexByLineNum($rootScope.startingLine);
             $scope.doRenderedSyllables();
@@ -292,7 +280,7 @@ scansionApp.controller('lineCntrl', function ($scope, $http, $modal, $timeout, $
     }
 
     $scope.UnitDoStreak = function(streak){
-        $rootScope.reportAchievement(streak+"Straight","Streak:"+streak+" Straight");
+        $rootScope.reportAchievement(streak+"Straight","Streak: "+streak+" Straight");
     }
 
     $scope.evaluateStreak = function(){
@@ -366,7 +354,6 @@ $scope.b = "Book 1";
  $scope.yesnocango = false;
  $scope.getIndexByLineNum = function (bnum,lineNumber){
         var buk = $rootScope.allData.lines[bnum];
-
         var ret = -1;
         for (var i=0; i < buk.lines.length; i++){
             if(buk.lines[i].id == lineNumber){
@@ -432,9 +419,7 @@ scansionApp.controller('NewGameSetupCtrl', function ($scope, $modal, $log, $root
   };
 });
 
-
 scansionApp.controller('AchievementsCtrl', function ($scope, $modal, $log, $rootScope) {
-
   $scope.achievements = $rootScope.globalInfo.achievements;
 
   $scope.open = function (templateurl) {
@@ -460,8 +445,6 @@ scansionApp.controller('AchievementsCtrl', function ($scope, $modal, $log, $root
  $scope.submitScore = function(score) {
     localStorage.setItem("userHighScore", score);
     $rootScope.globalInfo.userHighScore = score;
-
-
     var data = {
         score: score,
         leaderboardId: "board1"
@@ -469,10 +452,7 @@ scansionApp.controller('AchievementsCtrl', function ($scope, $modal, $log, $root
     //gamecenter.submitScore(successCallback, failureCallback, data);  
   }
 
- 
- 
  $scope.showLeaderboard = function(timeperiod) {
-
   //The period options are "today", "week" or "all".
 
     var data = {
